@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Generated makefiles
+*.make
+Makefile

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.qh": "quakec",
+        "stdexcept": "cpp"
+    }
+}
