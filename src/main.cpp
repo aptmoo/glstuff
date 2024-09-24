@@ -39,6 +39,28 @@ int main(int argc, char const *argv[])
     glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
     glVertexArrayAttribBinding(vao, 0, 0);
 
+    std::string vs_source = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+    std::string fs_source = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\n\0";
+    const char* vs_cstring = vs_source.c_str();
+    const char* fs_cstring = fs_source.c_str();
+
+    unsigned int vs, fs, pr;
+    vs = glCreateShaderProgramv(GL_VERTEX_SHADER, 1, &vs_cstring);
+    fs = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, &fs_cstring);
+    glCreateProgramPipelines(1, &pr);
+    glUseProgramStages(pr, GL_VERTEX_SHADER_BIT, vs);
+    glUseProgramStages(pr, GL_FRAGMENT_SHADER_BIT, fs);
+    glBindProgramPipeline(pr);
 
     while(!window.ShouldClose())
     {
@@ -54,6 +76,7 @@ int main(int argc, char const *argv[])
         window.OnUpdate();
     }
 
-    std::cout << "Hello World!\n";
+    glDeleteProgram(vs);
+
     return 0;
 }
