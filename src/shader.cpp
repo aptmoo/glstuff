@@ -1,6 +1,8 @@
 #include "shader.h"
 #include "glad/glad.h"
 
+#include <iostream>
+
 
 GLenum ShaderStageTypeToGL(ShaderStageType type)
 {
@@ -52,6 +54,7 @@ Shader::~Shader()
 void Shader::SetStage(const ShaderStage& stage)
 {
     glUseProgramStages(m_glID, ShaderStageTypeToGLBit(stage.GetType()), stage.GetID());
+    this->CacheUniforms();
 }
 
 void Shader::Bind()
@@ -62,4 +65,11 @@ void Shader::Bind()
 void Shader::Unbind()
 {
     glBindProgramPipeline(0);
+}
+
+void Shader::CacheUniforms()
+{
+    int uniformCount = 0;
+    glGetProgramPipelineiv(m_glID, GL_ACTIVE_UNIFORMS, &uniformCount);
+    std::cout << "Shader uniforms:" << uniformCount << '\n';
 }

@@ -39,6 +39,8 @@ public:
     unsigned int GetID() { return m_glID; }
 private:
     unsigned int m_glID;
+
+    void CacheUniforms();
 };
 
 #endif
