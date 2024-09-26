@@ -1,6 +1,7 @@
 #include <iostream>
 #include "window.h"
 #include "context.h"
+#include "shader.h"
 
 #include "glad/glad.h"
 
@@ -54,13 +55,12 @@ int main(int argc, char const *argv[])
     const char* vs_cstring = vs_source.c_str();
     const char* fs_cstring = fs_source.c_str();
 
-    unsigned int vs, fs, pr;
-    vs = glCreateShaderProgramv(GL_VERTEX_SHADER, 1, &vs_cstring);
-    fs = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, &fs_cstring);
-    glCreateProgramPipelines(1, &pr);
-    glUseProgramStages(pr, GL_VERTEX_SHADER_BIT, vs);
-    glUseProgramStages(pr, GL_FRAGMENT_SHADER_BIT, fs);
-    glBindProgramPipeline(pr);
+    ShaderStage vs(ShaderStageType::VERTEX, vs_source);
+    ShaderStage fs(ShaderStageType::FRAGMENT, fs_source);
+    Shader pr;
+    pr.SetStage(vs);
+    pr.SetStage(fs);
+    pr.Bind();
 
     while(!window.ShouldClose())
     {
@@ -75,8 +75,6 @@ int main(int argc, char const *argv[])
 
         window.OnUpdate();
     }
-
-    glDeleteProgram(vs);
-
+    
     return 0;
 }

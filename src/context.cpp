@@ -39,6 +39,21 @@ static void DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum s
 		}
 	}();
 
+	auto const polite_type_str = [type]() 
+    {
+		switch (type)
+		{
+		case GL_DEBUG_TYPE_ERROR: return "error";
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "deprecation notice";
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "undefined behaviour notif";
+		case GL_DEBUG_TYPE_PORTABILITY: return "portability error";
+		case GL_DEBUG_TYPE_PERFORMANCE: return "performance notif";
+		case GL_DEBUG_TYPE_MARKER: return "marker";
+		case GL_DEBUG_TYPE_OTHER: return "misc notification";
+        default: return "UNKNOWN";
+		}
+	}();
+
 	auto const severity_str = [severity]()
     {
 		switch (severity) 
@@ -51,7 +66,7 @@ static void DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum s
 		}
 	}();
 
-    std::cout << "GL Error from " << src_str << ", type=" << type_str << ", sev=" << severity_str << ", id=" << id << ":\n" << message << "\n---------------\n";
+    std::cout << "GL " << polite_type_str << " from " << src_str << ", type=" << type_str << ", sev=" << severity_str << ", obj id=" << id << ":\n" << message << "\n---------------\n";
 }
 
 GraphicsContext::GraphicsContext(void* handle)

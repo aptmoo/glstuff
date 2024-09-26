@@ -1,6 +1,0 @@
-#ifndef CONTENTMANAGER_H
-#define CONTENTMANAGER_H
-
-
-
-#endif
