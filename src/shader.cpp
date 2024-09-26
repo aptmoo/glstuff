@@ -1,4 +1,105 @@
 #include "shader.h"
+#include <memory>
+#include <iostream>
+#include "glad/glad.h"
+
+
+Shader::Shader(const std::string& vs_source, const std::string& fs_source)
+{
+    unsigned int vs, fs;
+    vs = CompileStage(GL_VERTEX_SHADER, vs_source);
+    fs = CompileStage(GL_FRAGMENT_SHADER, fs_source);
+    m_glID = LinkProgram(vs, fs);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+
+    glUseProgram(m_glID);
+    CacheUniforms();
+}
+
+Shader::~Shader()
+{
+    glDeleteProgram(m_glID);
+}
+
+void Shader::Bind()
+{
+    glUseProgram(m_glID);
+}
+
+void Shader::Unbind()
+{
+    glUseProgram(0);
+}
+
+unsigned int Shader::CompileStage(unsigned int type, const std::string& source)
+{
+    const char* source_cstr = source.c_str();
+    unsigned int id;
+    
+    id = glCreateShader(type);
+    glShaderSource(id, 1, &source_cstr, nullptr);
+    glCompileShader(id);
+    /* In GL_DEBUG_OUTPUT we trust! */
+
+    return id;
+}
+
+unsigned int Shader::LinkProgram(unsigned int vs, unsigned int fs)
+{
+    unsigned int id;
+    id = glCreateProgram();
+    glAttachShader(id, vs);
+    glAttachShader(id, fs);
+    glLinkProgram(id);
+    return id;
+}
+
+void Shader::CacheUniforms()
+{
+    int uniformCount = 0;
+    glGetProgramiv(m_glID, GL_ACTIVE_UNIFORMS, &uniformCount);
+
+    if(uniformCount != 0)
+    {
+        int maxNameLength = 0;
+        int length = 0, count = 0;
+        unsigned int type = GL_NONE;
+        glGetProgramiv(m_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+
+        std::unique_ptr<char[]> uniformName = std::make_unique<char[]>(maxNameLength);
+        for(int i = 0; i < uniformCount; ++i)
+        {
+            glGetActiveUniform(m_glID, i, maxNameLength, &length, &count, &type, uniformName.get());
+            
+            UniformData data;
+            data.count = count;
+            data.type = type;
+            data.location = glGetUniformLocation(m_glID, uniformName.get());
+
+            m_Uniforms.emplace(std::make_pair(std::string(uniformName.get(), length), data));
+        }
+    }
+}
+
+int Shader::GetUniformLocation(const std::string& name)
+{
+    if(m_Uniforms.find(name) != m_Uniforms.end())
+    {
+        return m_Uniforms.at(name).location;
+    }
+
+    return glGetUniformLocation(m_glID, name.c_str());  /* Whatever */
+}
+
+template<>
+void Shader::SetUniform(const std::string& name, float v)
+{
+    glUniform1f(GetUniformLocation(name), v);
+}
+
+template<>
+void Shader::SetUniform(const std::string& name, float v[3]){printf("i farded\n");};
 
 // #include "shader.h"
 // #include "glad/glad.h"
@@ -81,25 +182,25 @@
 // void Shader::CacheStageUniforms(const ShaderStage& stage)
 // {
 //     int uniformCount = 0;
-//     int stageID = stage.GetID();
-//     glGetProgramiv(stageID, GL_ACTIVE_UNIFORMS, &uniformCount);
+//     int m_glID = stage.GetID();
+//     glGetProgramiv(m_glID, GL_ACTIVE_UNIFORMS, &uniformCount);
 
 //     if(!uniformCount)
 //     {
 //         int maxNameLength = 0;
 //         int length = 0, count = 0;
 //         unsigned int type = GL_NONE;
-//         glGetProgramiv(stageID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+//         glGetProgramiv(m_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
 
 //         std::unique_ptr<char[]> uniformName = std::make_unique<char[]>(maxNameLength);
 //         for(int i = 0; i < uniformCount; ++i)
 //         {
-//             glGetActiveUniform(stageID, i, maxNameLength, &length, &count, &type, uniformName.get());
+//             glGetActiveUniform(m_glID, i, maxNameLength, &length, &count, &type, uniformName.get());
             
 //             UniformData data;
 //             data.count = count;
 //             data.type = type;
-//             data.location = glGetUniformLocation(stageID, uniformName.get());
+//             data.location = glGetUniformLocation(m_glID, uniformName.get());
 
 //             std::cout << std::string(uniformName.get(), length) << '\n';
 //             m_Uniforms.emplace(std::make_pair(std::string(uniformName.get(), length), data));

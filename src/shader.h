@@ -3,18 +3,38 @@
 #include <string>
 #include <unordered_map>
 
+struct UniformData
+{
+    int location, count;
+    unsigned int type;
+};
+
 class Shader
 {
 public:
     Shader(const std::string& vs_source, const std::string& fs_source);
     ~Shader();
 
+    void Bind();
+    void Unbind();
+
+    template<typename T>
+    void SetUniform(const std::string& name, T v){static_assert(0);};
+    
+    unsigned int GetID(){ return m_glID; }
 private:
     unsigned int m_glID;
+    std::unordered_map<std::string, UniformData> m_Uniforms;
 
     unsigned int CompileStage(unsigned int type, const std::string& source);
-    void LinkProgram(unsigned int vs, unsigned int fs);
+    unsigned int LinkProgram(unsigned int vs, unsigned int fs);
+
+    void CacheUniforms();
+    int GetUniformLocation(const std::string& name);
 };
+
+template<>
+void Shader::SetUniform(const std::string& name, float v);
 
 #endif
 

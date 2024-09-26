@@ -56,14 +56,9 @@ int main(int argc, char const *argv[])
     const char* vs_cstring = vs_source.c_str();
     const char* fs_cstring = fs_source.c_str();
 
-    ShaderStage vs(ShaderStageType::VERTEX, vs_source);
-    ShaderStage fs(ShaderStageType::FRAGMENT, fs_source);
-    Shader pr;
-    pr.SetStage(vs);
-    pr.SetStage(fs);
+    Shader pr(vs_source, fs_source);
     pr.Bind();
-
-    glGetUniformLocation(pr.GetID(), "test");
+    pr.SetUniform<float>("test", 1.0f);
 
     while(!window.ShouldClose())
     {
