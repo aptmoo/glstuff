@@ -48,9 +48,10 @@ int main(int argc, char const *argv[])
     "}\0";
     std::string fs_source = "#version 330 core\n"
     "out vec4 FragColor;\n"
+    "uniform float test;"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   FragColor = vec4(test, 0.5f, 0.2f, 1.0f);\n"
     "}\n\0";
     const char* vs_cstring = vs_source.c_str();
     const char* fs_cstring = fs_source.c_str();
@@ -61,6 +62,8 @@ int main(int argc, char const *argv[])
     pr.SetStage(vs);
     pr.SetStage(fs);
     pr.Bind();
+
+    glGetUniformLocation(pr.GetID(), "test");
 
     while(!window.ShouldClose())
     {

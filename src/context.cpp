@@ -86,6 +86,7 @@ void GraphicsContext::Init()
     #ifndef NDEBUG
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(DebugMessageCallback, nullptr);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     #endif
 }
 
