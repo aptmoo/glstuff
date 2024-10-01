@@ -2,8 +2,12 @@
 #include "window.h"
 #include "context.h"
 #include "shader.h"
+#include "buffers.h"
+
+#include "content.h"
 
 #include "glad/glad.h"
+#include "stb_image.h"
 
 int main(int argc, char const *argv[])
 {
@@ -11,12 +15,15 @@ int main(int argc, char const *argv[])
     GraphicsContext context(window.GetHandle());
     context.Init();
 
+    ContentManager content;
+
     float vertices[] = 
     {
-        0.5f,  0.5f, 0.0f,  // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
+        // positions          // colors           // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
     };  
 
     unsigned int indices[] = 
@@ -25,40 +32,46 @@ int main(int argc, char const *argv[])
         1, 2, 3    /* T1 */
     }; 
 
-    unsigned int vbo, ibo, vao;
-    glCreateBuffers(1, &vbo);
-    glNamedBufferData(vbo, sizeof(float) * 3 * 4, &vertices, GL_STATIC_DRAW);
+    StaticGPUBuffer vb(&vertices, sizeof(float) * 8 * 4);
+    StaticGPUBuffer ib(&indices, sizeof(float) * 2 * 3);
 
-    glCreateBuffers(1, &ibo);
-    glNamedBufferData(ibo, sizeof(int) * 2 * 3, &indices, GL_STATIC_DRAW);
+    unsigned int vao;
 
     glCreateVertexArrays(1, &vao);
-    glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(float) * 3);
-    glVertexArrayElementBuffer(vao, ibo);
+    glVertexArrayVertexBuffer(vao, 0, vb.GetID(), 0, sizeof(float) * 8);
+    glVertexArrayElementBuffer(vao, ib.GetID());
 
     glEnableVertexArrayAttrib(vao, 0);
     glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
     glVertexArrayAttribBinding(vao, 0, 0);
 
-    std::string vs_source = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-    std::string fs_source = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "uniform float test;"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(test, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
-    const char* vs_cstring = vs_source.c_str();
-    const char* fs_cstring = fs_source.c_str();
+    glEnableVertexArrayAttrib(vao, 1);
+    glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+    glVertexArrayAttribBinding(vao, 1, 0);
 
-    Shader pr(vs_source, fs_source);
-    pr.Bind();
-    pr.SetUniform<float>("test", 1.0f);
+    glEnableVertexArrayAttrib(vao, 2);
+    glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float));
+    glVertexArrayAttribBinding(vao, 2, 0);
+
+    stbi_set_flip_vertically_on_load(true);
+    int width, height, bpp;
+    unsigned char* data = stbi_load("awesomeface.png", &width, &height, &bpp, 0);
+
+    unsigned int texture;
+    glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureStorage2D(texture, 1, GL_RGBA8, width, height);
+    glTextureSubImage2D(texture, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glBindTextureUnit(0, texture);
+    
+    stbi_image_free(data);
+
+    Ref<Shader> pr = content.Load<Shader>("test");
+    pr->Bind();
+    pr->SetUniform<int>("texture1", 0);
 
     while(!window.ShouldClose())
     {

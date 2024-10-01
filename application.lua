@@ -16,7 +16,9 @@ project "Application"
     {
         "src/",
 
-        "ext/glad/include/"
+        "ext/glad/include/",
+        "ext/glfw/include",
+        "ext/stb/",
     }
 
     libdirs

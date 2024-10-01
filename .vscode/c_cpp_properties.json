@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/ext/glad/include",
-                ""
+                "",
+                "${workspaceFolder}/ext/stb"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

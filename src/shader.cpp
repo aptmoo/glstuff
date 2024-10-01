@@ -41,7 +41,6 @@ unsigned int Shader::CompileStage(unsigned int type, const std::string& source)
     glShaderSource(id, 1, &source_cstr, nullptr);
     glCompileShader(id);
     /* In GL_DEBUG_OUTPUT we trust! */
-
     return id;
 }
 
@@ -99,7 +98,11 @@ void Shader::SetUniform(const std::string& name, float v)
 }
 
 template<>
-void Shader::SetUniform(const std::string& name, float v[3]){printf("i farded\n");};
+void Shader::SetUniform(const std::string& name, int v)
+{
+    glUniform1i(GetUniformLocation(name), v);
+}
+
 
 // #include "shader.h"
 // #include "glad/glad.h"

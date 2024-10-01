@@ -1,20 +1,19 @@
-project "glad"
+project "stb"
     kind "StaticLib"
     language "C"
-    targetname "glad"
+    targetname "GLFW"
     targetdir "lib/"
     objdir "bin-int/"
 
     files
     {
-        "ext/glad/include/**.h",
-        "ext/glad/src/**.h",
-        "ext/glad/src/**.c",
+        "ext/stb/**.h",
+        "ext/stb/**.c",
     }
 
     includedirs
     {
-        "ext/glad/include/",
+        "ext/stb",
     }
 
     libdirs
@@ -29,7 +28,7 @@ project "glad"
 
     filter "system:linux"
         defines { "SYSTEM_LINUX" }
-        links { "dl", "m", "pthread", "GL" }
+        links { "dl", "m", "pthread",}
         libdirs { "/lib/", "/usr/lib" }
     
     filter "configurations:Debug"

@@ -9,5 +9,6 @@ workspace "GLStuff"
 
 include "glad.lua"
 include "glfw.lua"
+include "stb.lua"
 
 include "application.lua"

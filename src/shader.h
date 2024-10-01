@@ -36,6 +36,9 @@ private:
 template<>
 void Shader::SetUniform(const std::string& name, float v);
 
+template<>
+void Shader::SetUniform(const std::string& name, int v);
+
 #endif
 
 // #ifndef SHADER_H
