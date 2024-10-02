@@ -1,6 +1,7 @@
 #ifndef BUFFERS_H
 #define BUFFERS_H
 #include <vector>
+#include <utility>
 #include "layout.h"
 
 class StaticGPUBuffer
@@ -22,11 +23,20 @@ private:
 class VertexArray
 {
 public:
+    VertexArray();
+    ~VertexArray();
+
     void AddBuffer(const StaticGPUBuffer& buffer, const GPUDataLayout& layout);
     void AddBuffer(const StaticGPUBuffer& buffer, GPUType elementType);
+
+    void Bind();
+    void Unbind();
 private:
-    unsigned int m_glID;
+    std::vector<std::pair<GPUDataLayout, StaticGPUBuffer>> m_Buffers;
     unsigned int m_BufferCount;
+
+    GPUType m_ElementBufferType;
+    unsigned int m_glID;
 };
 
 #endif

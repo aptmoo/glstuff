@@ -72,9 +72,9 @@ GPUDataLayout::GPUDataLayout(std::initializer_list<GPUDataElement> elements)
     CalculateOffsets();
 }
 
-void GPUDataLayout::AddElement(const GPUDataElement& element)
+void GPUDataLayout::AddElement(const std::string& name, const GPUType& type, bool normalized)
 {
-    m_Elements.push_back(element);
+    m_Elements.push_back({name, type, 0, normalized});
     CalculateOffsets();
 }
 

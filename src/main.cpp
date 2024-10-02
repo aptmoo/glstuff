@@ -32,26 +32,34 @@ int main(int argc, char const *argv[])
         1, 2, 3    /* T1 */
     }; 
 
+    GPUDataLayout vbLayout;
+    vbLayout.AddElement("Positions", GPUType::FLOAT3);
+    vbLayout.AddElement("Colors", GPUType::FLOAT3);
+    vbLayout.AddElement("TexCoord0", GPUType::FLOAT2);
     StaticGPUBuffer vb(&vertices, sizeof(float) * 8 * 4);
     StaticGPUBuffer ib(&indices, sizeof(float) * 2 * 3);
+    VertexArray va;
 
-    unsigned int vao;
+    va.AddBuffer(ib, GPUType::UINT);
+    va.AddBuffer(vb, vbLayout);
 
-    glCreateVertexArrays(1, &vao);
-    glVertexArrayVertexBuffer(vao, 0, vb.GetID(), 0, sizeof(float) * 8);
-    glVertexArrayElementBuffer(vao, ib.GetID());
+    // unsigned int vao;
 
-    glEnableVertexArrayAttrib(vao, 0);
-    glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
-    glVertexArrayAttribBinding(vao, 0, 0);
+    // glCreateVertexArrays(1, &vao);
+    // glVertexArrayVertexBuffer(vao, 0, vb.GetID(), 0, sizeof(float) * 8);
+    // glVertexArrayElementBuffer(vao, ib.GetID());
 
-    glEnableVertexArrayAttrib(vao, 1);
-    glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
-    glVertexArrayAttribBinding(vao, 1, 0);
+    // glEnableVertexArrayAttrib(vao, 0);
+    // glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+    // glVertexArrayAttribBinding(vao, 0, 0);
 
-    glEnableVertexArrayAttrib(vao, 2);
-    glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float));
-    glVertexArrayAttribBinding(vao, 2, 0);
+    // glEnableVertexArrayAttrib(vao, 1);
+    // glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+    // glVertexArrayAttribBinding(vao, 1, 0);
+
+    // glEnableVertexArrayAttrib(vao, 2);
+    // glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float));
+    // glVertexArrayAttribBinding(vao, 2, 0);
 
     stbi_set_flip_vertically_on_load(true);
     int width, height, bpp;
@@ -81,7 +89,8 @@ int main(int argc, char const *argv[])
         glClearColor(0.1, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBindVertexArray(vao);
+        va.Bind();
+        // glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         window.OnUpdate();

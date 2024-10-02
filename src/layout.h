@@ -40,7 +40,7 @@ public:
      * 
      * @param element 
      */
-    void AddElement(const GPUDataElement& element);
+    void AddElement(const std::string& name, const GPUType& type, bool normalized = false);
 
     unsigned int GetStride() { return m_Stride; }
     unsigned int GetStride() const { return m_Stride; }
