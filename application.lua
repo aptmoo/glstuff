@@ -19,6 +19,7 @@ project "Application"
         "ext/glad/include/",
         "ext/glfw/include",
         "ext/stb/",
+        "ext/glm/",
     }
 
     libdirs

@@ -1,6 +1,5 @@
 #include "buffers.h"
 #include "glad/glad.h"
-#include <iostream>
 
 GLenum GPUTypeToGL(GPUType type)
 {
@@ -44,6 +43,12 @@ StaticGPUBuffer::~StaticGPUBuffer()
     glDeleteBuffers(1, &m_glID);
 }
 
+Ref<StaticGPUBuffer> StaticGPUBuffer::Create(void* data, unsigned int size)
+{
+    return MakeRef<StaticGPUBuffer>(data, size);
+}
+
+
 VertexArray::VertexArray()
     : m_BufferCount(0)
 {
@@ -56,13 +61,12 @@ VertexArray::~VertexArray()
 }
 
 
-void VertexArray::AddBuffer(const StaticGPUBuffer& buffer, const GPUDataLayout& layout)
+void VertexArray::AddBuffer(const Ref<StaticGPUBuffer>& buffer, const GPUDataLayout& layout)
 {
-    unsigned int count = buffer.GetSize() / layout.GetStride();
-    std::cout << "Vertex array elements: " << count << '\n';
+    unsigned int count = buffer->GetSize() / layout.GetStride();
     unsigned int attribIndex = 0;
 
-    glVertexArrayVertexBuffer(m_glID, m_BufferCount, buffer.GetID(), 0, layout.GetStride());
+    glVertexArrayVertexBuffer(m_glID, m_BufferCount, buffer->GetID(), 0, layout.GetStride());
     for(const GPUDataElement& element : layout)
     {
         glEnableVertexArrayAttrib(m_glID, attribIndex);
@@ -71,16 +75,15 @@ void VertexArray::AddBuffer(const StaticGPUBuffer& buffer, const GPUDataLayout& 
         attribIndex++;
     }
 
-    std::cout << "Attribs: " << attribIndex << '\n'; 
-
-    // m_Buffers.push_back({layout, buffer});
+    m_Buffers.push_back({layout, buffer});
     m_BufferCount++;
 }
 
-void VertexArray::AddBuffer(const StaticGPUBuffer& buffer, GPUType elementType)
+void VertexArray::AddBuffer(const Ref<StaticGPUBuffer>& buffer, GPUType elementType)
 {
-    glVertexArrayElementBuffer(m_glID, buffer.GetID());
+    glVertexArrayElementBuffer(m_glID, buffer->GetID());
     m_ElementBufferType = elementType;
+    m_IndexBuffer = buffer;
 }
 
 void VertexArray::Bind()

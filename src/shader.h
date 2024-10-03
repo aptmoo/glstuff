@@ -2,6 +2,7 @@
 #define SHADER_H
 #include <string>
 #include <unordered_map>
+#include "glm/glm.hpp"
 
 struct UniformData
 {
@@ -38,6 +39,9 @@ void Shader::SetUniform(const std::string& name, float v);
 
 template<>
 void Shader::SetUniform(const std::string& name, int v);
+
+template<>
+void Shader::SetUniform(const std::string& name, glm::mat4 v);
 
 #endif
 

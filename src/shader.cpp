@@ -2,6 +2,7 @@
 #include <memory>
 #include <iostream>
 #include "glad/glad.h"
+#include "glm/gtc/type_ptr.hpp"
 
 
 Shader::Shader(const std::string& vs_source, const std::string& fs_source)
@@ -103,6 +104,11 @@ void Shader::SetUniform(const std::string& name, int v)
     glUniform1i(GetUniformLocation(name), v);
 }
 
+template<>
+void Shader::SetUniform(const std::string& name, glm::mat4 v)
+{
+    glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(v));
+}
 
 // #include "shader.h"
 // #include "glad/glad.h"
