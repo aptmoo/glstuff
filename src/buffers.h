@@ -39,8 +39,15 @@ public:
      */
     void AddBuffer(const Ref<StaticGPUBuffer>& buffer, GPUType elementType);
 
+    unsigned int GetElementCount();
+    unsigned int GetElementCount() const;
+
+
     void Bind();
+    void Bind() const;
     void Unbind();
+    void Unbind() const;
+
 private:
     /* Added buffers only as smart ptrs, to avoid using deleted buffers */
     std::vector<std::pair<GPUDataLayout, Ref<StaticGPUBuffer>>> m_Buffers;

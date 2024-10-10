@@ -86,12 +86,39 @@ void VertexArray::AddBuffer(const Ref<StaticGPUBuffer>& buffer, GPUType elementT
     m_IndexBuffer = buffer;
 }
 
+unsigned int VertexArray::GetElementCount()
+{
+    if(m_IndexBuffer.get() != nullptr)
+    {
+        return m_IndexBuffer->GetSize() / GPUTypeSize(m_ElementBufferType);
+    }
+}
+
+unsigned int VertexArray::GetElementCount() const
+{
+    if(m_IndexBuffer.get() != nullptr)
+    {
+        return m_IndexBuffer->GetSize() / GPUTypeSize(m_ElementBufferType);
+    }
+}
+
+
 void VertexArray::Bind()
 {
     glBindVertexArray(m_glID);
 }
 
+void VertexArray::Bind() const
+{
+    glBindVertexArray(m_glID);
+}
+
 void VertexArray::Unbind()
+{
+    glBindVertexArray(0);
+}
+
+void VertexArray::Unbind() const
 {
     glBindVertexArray(0);
 }

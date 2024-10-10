@@ -2,13 +2,12 @@
 #include <vector>
 #include "window.h"
 #include "context.h"
-#include "shader.h"
-#include "buffers.h"
 #include "texture.h"
+#include "renderer.h"
 
 #include "content.h"
 
-#include "glad/glad.h"
+// #include "glad/glad.h"
 #include "stb_image.h"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -19,6 +18,7 @@ int main(int argc, char const *argv[])
     context.Init();
 
     ContentManager content;
+    Renderer renderer;
 
     float vertices[] = 
     {
@@ -100,13 +100,13 @@ int main(int argc, char const *argv[])
 
     stbi_set_flip_vertically_on_load(true);
     int width, height, bpp;
-    unsigned char* data = stbi_load("awesomeface.png", &width, &height, &bpp, 0);
-    Texture tex(data, (TextureDesc){TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, width, height});
+    unsigned char* data = stbi_load("awesomeface_16bit.png", &width, &height, &bpp, 0);
+    Texture tex(data, (TextureDesc){TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, TextureFormat::RGBA, InternalFormat::RGBA16, width, height});
     tex.Bind(0);
     stbi_image_free(data);
 
     Ref<Shader> pr = content.Load<Shader>("test");
-    pr->SetUniform<int>("texture1", 0);
+    pr->SetUniform<int>("texture0", 0);
 
     Ref<Shader> cubePr = content.Load<Shader>("cube");
 
@@ -127,8 +127,6 @@ int main(int argc, char const *argv[])
         glm::vec3(-1.3f,  1.0f, -1.5f)  
     };
 
-    glEnable(GL_DEPTH_TEST);
-
     float r;
 
     while(!window.ShouldClose())
@@ -141,8 +139,7 @@ int main(int argc, char const *argv[])
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
         view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -6.0f));
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        renderer.Clear(0.1f, 0.1f, 0.1f);
         
         cubePr->Bind();
         cubePr->SetUniform<glm::mat4>("projection", projection);
@@ -157,12 +154,10 @@ int main(int argc, char const *argv[])
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             model = glm::scale(model, glm::vec3(0.5f));
             cubePr->SetUniform<glm::mat4>("model", model);
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+            renderer.Draw(cubeVa, *cubePr);
         }
 
-        pr->Bind();
-        va.Bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        renderer.Draw(va, *pr);
 
         window.OnUpdate();
     }

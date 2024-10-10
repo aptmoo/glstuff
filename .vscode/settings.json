@@ -66,5 +66,6 @@
         "ios": "cpp",
         "locale": "cpp",
         "queue": "cpp"
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }

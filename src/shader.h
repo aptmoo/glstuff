@@ -17,7 +17,9 @@ public:
     ~Shader();
 
     void Bind();
+    void Bind() const;
     void Unbind();
+    void Unbind() const;
 
     template<typename T>
     void SetUniform(const std::string& name, T v){static_assert(0);};

@@ -3,7 +3,7 @@
 
 enum class TextureFilter
 {
-    _NONE = 0,
+    DEFAULT = 0,
     NEAREST,
     LINEAR,
 };
@@ -19,19 +19,45 @@ enum class MipFilter
 
 enum class WrapMode
 {
-    _NONE = 0,
+    DEFAULT = 0,
     REPEAT,
     REPEAT_MIRRORED,
     CLAMP,
     CLAMP_STRETCH,
 };
 
+// TODO: unused. Use.
+enum class TextureFormat
+{
+    DEFAULT = 0, // RGBA assumed
+    RGB, 
+    RGBA,
+    RG,
+    RED,
+    // TODO: More formats when needed
+};
+
+enum class InternalFormat
+{
+    _NONE = 0,
+    RGBA8,
+    RGBA16,
+    RGB8,
+    RGB16,
+    RG8,
+    RG16,
+    RED8,
+    RED16,
+};
+
 struct TextureDesc
 {
-    TextureFilter Filter;
-    MipFilter Mip;    // Set to NONE for no filtering
-    WrapMode Wrap;
-    int Width, Height;
+    TextureFilter filter;
+    MipFilter mipFilter;    // Set to NONE for no filtering
+    WrapMode wrapMode;
+    TextureFormat format;
+    InternalFormat internalFormat;
+    int width, height;
 };
 
 class Texture
@@ -42,10 +68,10 @@ public:
 
     void Bind(unsigned int slot);
 
-    int GetWidth()          { return m_desc.Width;     }
-    int GetHeight()         { return m_desc.Height;    }
-    MipFilter GetMipFilter()         { return m_desc.Mip; }
-    TextureFilter GetTextureFilter() { return m_desc.Filter;    }
+    int GetWidth()          { return m_desc.width;     }
+    int GetHeight()         { return m_desc.height;    }
+    MipFilter GetMipFilter()         { return m_desc.mipFilter; }
+    TextureFilter GetTextureFilter() { return m_desc.filter;    }
     TextureDesc GetDesc()            { return m_desc;           }
 private:
     TextureDesc m_desc;
