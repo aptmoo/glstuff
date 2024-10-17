@@ -1,5 +1,6 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
+#include "gpuUtils.h"
 
 enum class TextureFilter
 {
@@ -26,7 +27,6 @@ enum class WrapMode
     CLAMP_STRETCH,
 };
 
-// TODO: unused. Use.
 enum class TextureFormat
 {
     DEFAULT = 0, // RGBA assumed
@@ -52,6 +52,7 @@ enum class InternalFormat
 
 struct TextureDesc
 {
+    GPUType type;
     TextureFilter filter;
     MipFilter mipFilter;    // Set to NONE for no filtering
     WrapMode wrapMode;

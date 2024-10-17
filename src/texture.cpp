@@ -1,5 +1,6 @@
 #include "texture.h"
 #include "glad/glad.h"
+#include "glutils.h"
 
 GLenum FilterToGL(TextureFilter filter)
 {
@@ -88,7 +89,7 @@ Texture::Texture(unsigned char* data, const TextureDesc& desc)
     }
 
     glTextureStorage2D(m_glID, 1, InternalFormatToGL(desc.internalFormat), desc.width, desc.height);
-    glTextureSubImage2D(m_glID, 0, 0, 0, desc.width, desc.height, TextureFormatToGL(desc.format), GL_UNSIGNED_BYTE, data);
+    glTextureSubImage2D(m_glID, 0, 0, 0, desc.width, desc.height, TextureFormatToGL(desc.format), GPUTypeToGL(desc.type), data);
 
     if(desc.mipFilter != MipFilter::NONE)
         glGenerateTextureMipmap(m_glID);

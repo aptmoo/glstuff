@@ -6,10 +6,12 @@
 #include "renderer.h"
 
 #include "content.h"
+#include "camera.h"
 
-// #include "glad/glad.h"
+#include "glad/glad.h"
 #include "stb_image.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 int main(int argc, char const *argv[])
 {
@@ -101,7 +103,7 @@ int main(int argc, char const *argv[])
     stbi_set_flip_vertically_on_load(true);
     int width, height, bpp;
     unsigned char* data = stbi_load("awesomeface_16bit.png", &width, &height, &bpp, 0);
-    Texture tex(data, (TextureDesc){TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, TextureFormat::RGBA, InternalFormat::RGBA16, width, height});
+    Texture tex(data, (TextureDesc){GPUType::UCHAR, TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, TextureFormat::RGBA, InternalFormat::RGBA16, width, height});
     tex.Bind(0);
     stbi_image_free(data);
 
@@ -129,21 +131,25 @@ int main(int argc, char const *argv[])
 
     float r;
 
+    CameraTransform camera(glm::vec3(0.0f, 0.0f, -6.0f));
+
     while(!window.ShouldClose())
     {
-        r += 0.5f;
-
-        if(window.GetSizeChanged())
-            context.SetViewportSize(window.GetSize());
-        
+        /* Update stuff */
+        r += 0.5f;  
+        camera.SetRotation(glm::radians(glm::vec3(0.0f, 0.0f, r)));
+        camera.Update();
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
-        view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -6.0f));
 
+
+        /* draw stuff*/
+        if(window.GetSizeChanged())
+            context.SetViewportSize(window.GetSize());        
         renderer.Clear(0.1f, 0.1f, 0.1f);
         
         cubePr->Bind();
         cubePr->SetUniform<glm::mat4>("projection", projection);
-        cubePr->SetUniform<glm::mat4>("view", view);
+        cubePr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
 
         cubeVa.Bind();
         for(unsigned int i = 0; i < 10; i++)
