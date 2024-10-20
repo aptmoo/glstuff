@@ -131,13 +131,13 @@ int main(int argc, char const *argv[])
 
     float r;
 
-    CameraTransform camera(glm::vec3(0.0f, 0.0f, -6.0f));
+    CameraTransform camera(glm::vec3(-6.0f, -1.0f, -6.0f));
 
     while(!window.ShouldClose())
     {
         /* Update stuff */
         r += 0.5f;  
-        camera.SetRotation(glm::radians(glm::vec3(0.0f, 0.0f, r)));
+        camera.SetRotation(glm::radians(glm::vec3(0.0f, -45.0f, 0.0f)));
         camera.Update();
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
 
@@ -150,20 +150,8 @@ int main(int argc, char const *argv[])
         cubePr->Bind();
         cubePr->SetUniform<glm::mat4>("projection", projection);
         cubePr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
-
-        cubeVa.Bind();
-        for(unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i + r; 
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            model = glm::scale(model, glm::vec3(0.5f));
-            cubePr->SetUniform<glm::mat4>("model", model);
-            renderer.Draw(cubeVa, *cubePr);
-        }
-
-        renderer.Draw(va, *pr);
+        cubePr->SetUniform<glm::mat4>("model", glm::mat4(1.0f));
+        renderer.Draw(cubeVa, *cubePr);
 
         window.OnUpdate();
     }
