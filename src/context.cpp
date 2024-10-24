@@ -67,6 +67,7 @@ static void DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum s
 	}();
 
     std::cout << "GL " << polite_type_str << " from " << src_str << ", type=" << type_str << ", sev=" << severity_str << ", obj id=" << id << ":\n" << message << "\n---------------\n";
+	getchar();
 }
 
 GraphicsContext::GraphicsContext(void* handle)

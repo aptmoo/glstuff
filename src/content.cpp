@@ -15,18 +15,20 @@ Ref<Shader> ContentManager::Load(const std::string& name)
     std::string vs_source, fs_source;
     enum class StageType
     {
-        _NONE = -1, VERTEX=0, FRAGMENT=1,
+        _NONE = -1, SHARED, VERTEX=1, FRAGMENT=2, COUNT
     } type = StageType::_NONE;
 
     std::string path = m_ContentDir + name + ".shd";
     std::ifstream file(path);
     std::string line;
-    std::stringstream streams[2];
+    std::stringstream streams[(int)StageType::COUNT];
 
     while (getline(file, line))
     {
         if(line.find("@shader") != std::string::npos)
         {
+            if(line.find("shared") != std::string::npos)
+                type = StageType::SHARED;
             if(line.find("vertex") != std::string::npos)
                 type = StageType::VERTEX;
             if(line.find("fragment") != std::string::npos)
@@ -39,8 +41,8 @@ Ref<Shader> ContentManager::Load(const std::string& name)
         }
     }
 
-    vs_source = streams[0].str();
-    fs_source = streams[1].str();
+    vs_source = streams[(int)StageType::SHARED].str() + streams[(int)StageType::VERTEX].str();
+    fs_source = streams[(int)StageType::SHARED].str() + streams[(int)StageType::FRAGMENT].str();
 
     m_Shaders.emplace(name, MakeRef<Shader>(vs_source, fs_source));
     return m_Shaders.at(name);

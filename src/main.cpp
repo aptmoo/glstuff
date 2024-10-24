@@ -49,36 +49,32 @@ int main(int argc, char const *argv[])
 
     std::vector<float> cubeVertices =
     {
-        -1.0f, -1.0f, -1.0f,    1.0f, 0.0f, 0.0f, 1.0f,     0.0f, 0.0f,
-         1.0f, -1.0f, -1.0f,    1.0f, 0.0f, 0.0f, 1.0f,     1.0f, 0.0f,
-         1.0f,  1.0f, -1.0f,    1.0f, 0.0f, 0.0f, 1.0f,     1.0f, 1.0f,
-        -1.0f,  1.0f, -1.0f,    1.0f, 0.0f, 0.0f, 1.0f,     0.0f, 1.0f,
-
-        -1.0f, -1.0f,  1.0f,    0.0f, 1.0f, 0.0f, 1.0f,     0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f,    0.0f, 1.0f, 0.0f, 1.0f,     1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f,    0.0f, 1.0f, 0.0f, 1.0f,     1.0f, 1.0f,
-        -1.0f,  1.0f,  1.0f,    0.0f, 1.0f, 0.0f, 1.0f,     0.0f, 1.0f,
-
-        -1.0f, -1.0f, -1.0f,    0.0f, 0.0f, 1.0f, 1.0f,     0.0f, 0.0f,
-        -1.0f,  1.0f, -1.0f,    0.0f, 0.0f, 1.0f, 1.0f,     1.0f, 0.0f,
-        -1.0f,  1.0f,  1.0f,    0.0f, 0.0f, 1.0f, 1.0f,     1.0f, 1.0f,
-        -1.0f, -1.0f,  1.0f,    0.0f, 0.0f, 1.0f, 1.0f,     0.0f, 1.0f,
-
-         1.0f, -1.0f, -1.0f,    1.0f, 0.5f, 0.0f, 1.0f,     0.0f, 0.0f,
-         1.0f,  1.0f, -1.0f,    1.0f, 0.5f, 0.0f, 1.0f,     1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f,    1.0f, 0.5f, 0.0f, 1.0f,     1.0f, 1.0f,
-         1.0f, -1.0f,  1.0f,    1.0f, 0.5f, 0.0f, 1.0f,     0.0f, 1.0f,
-
-        -1.0f, -1.0f, -1.0f,    0.0f, 0.5f, 1.0f, 1.0f,     0.0f, 0.0f,
-        -1.0f, -1.0f,  1.0f,    0.0f, 0.5f, 1.0f, 1.0f,     1.0f, 0.0f,
-         1.0f, -1.0f,  1.0f,    0.0f, 0.5f, 1.0f, 1.0f,     1.0f, 1.0f,
-         1.0f, -1.0f, -1.0f,    0.0f, 0.5f, 1.0f, 1.0f,     0.0f, 1.0f,
-
-        -1.0f,  1.0f, -1.0f,    1.0f, 0.0f, 0.5f, 1.0f,     0.0f, 0.0f,
-        -1.0f,  1.0f,  1.0f,    1.0f, 0.0f, 0.5f, 1.0f,     1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f,    1.0f, 0.0f, 0.5f, 1.0f,     1.0f, 1.0f,
-         1.0f,  1.0f, -1.0f,    1.0f, 0.0f, 0.5f, 1.0f,     0.0f, 1.0f
+        -1.0f, -1.0f, -1.0f,    0.0f, 0.0f, -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,     0.0f, 0.0f,
+         1.0f, -1.0f, -1.0f,    0.0f, 0.0f, -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,     1.0f, 0.0f,
+         1.0f,  1.0f, -1.0f,    0.0f, 0.0f, -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,     1.0f, 1.0f,
+        -1.0f,  1.0f, -1.0f,    0.0f, 0.0f, -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,     0.0f, 1.0f,
+        -1.0f, -1.0f,  1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f, 1.0f,     0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f, 1.0f,     1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f, 1.0f,     1.0f, 1.0f,
+        -1.0f,  1.0f,  1.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f, 1.0f,     0.0f, 1.0f,
+        -1.0f, -1.0f, -1.0f,    -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f,     0.0f, 0.0f,
+        -1.0f,  1.0f, -1.0f,    -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f,     1.0f, 0.0f,
+        -1.0f,  1.0f,  1.0f,    -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f,     1.0f, 1.0f,
+        -1.0f, -1.0f,  1.0f,    -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f,     0.0f, 1.0f,
+         1.0f, -1.0f, -1.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.5f, 0.0f, 1.0f,     0.0f, 0.0f,
+         1.0f,  1.0f, -1.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.5f, 0.0f, 1.0f,     1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.5f, 0.0f, 1.0f,     1.0f, 1.0f,
+         1.0f, -1.0f,  1.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.5f, 0.0f, 1.0f,     0.0f, 1.0f,
+        -1.0f, -1.0f, -1.0f,    0.0f, -1.0f, 0.0f,  0.0f, 0.5f, 1.0f, 1.0f,     0.0f, 0.0f,
+        -1.0f, -1.0f,  1.0f,    0.0f, -1.0f, 0.0f,  0.0f, 0.5f, 1.0f, 1.0f,     1.0f, 0.0f,
+         1.0f, -1.0f,  1.0f,    0.0f, -1.0f, 0.0f,  0.0f, 0.5f, 1.0f, 1.0f,     1.0f, 1.0f,
+         1.0f, -1.0f, -1.0f,    0.0f, -1.0f, 0.0f,  0.0f, 0.5f, 1.0f, 1.0f,     0.0f, 1.0f,
+        -1.0f,  1.0f, -1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.5f, 1.0f,     0.0f, 0.0f,
+        -1.0f,  1.0f,  1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.5f, 1.0f,     1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.5f, 1.0f,     1.0f, 1.0f,
+         1.0f,  1.0f, -1.0f,    0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.5f, 1.0f,     0.0f, 1.0f
     };
+
 
     std::vector<unsigned int> cubeIndices = 
     {
@@ -92,6 +88,7 @@ int main(int argc, char const *argv[])
 
     GPUDataLayout cubeLayout;
     cubeLayout.AddElement("Positions", GPUType::FLOAT3);
+    cubeLayout.AddElement("Normals", GPUType::FLOAT3);
     cubeLayout.AddElement("Colors", GPUType::FLOAT4);
     cubeLayout.AddElement("TexCoord0", GPUType::FLOAT2);
     Ref<StaticGPUBuffer> cubeVb = StaticGPUBuffer::Create(cubeVertices.data(), sizeof(float) * cubeVertices.size());
@@ -111,6 +108,8 @@ int main(int argc, char const *argv[])
     pr->SetUniform<int>("texture0", 0);
 
     Ref<Shader> cubePr = content.Load<Shader>("cube");
+    Ref<Shader> lightboxPr = content.Load<Shader>("lightbox");
+    Ref<Shader> litPr = content.Load<Shader>("basicLight");
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -118,12 +117,13 @@ int main(int argc, char const *argv[])
     float r;
 
     CameraTransform camera(glm::vec3(-6.0f, -6.0f, -6.0f));
+    glm::vec3 lightPos = glm::vec3(2, 2, -2);
 
     while(!window.ShouldClose())
     {
         /* Update stuff */
         r += 0.5f;  
-        camera.SetRotation(glm::radians(glm::vec3(33.3f, -45.0f, r)));
+        camera.SetRotation(glm::radians(glm::vec3(33.3f, -45.0f, 0.0f)));
         camera.Update();
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
 
@@ -132,15 +132,35 @@ int main(int argc, char const *argv[])
         if(window.GetSizeChanged())
             context.SetViewportSize(window.GetSize());        
         renderer.Clear(0.1f, 0.1f, 0.1f);
+
+        /* Draw lightbox */
+        {
+            lightboxPr->Bind();
+            lightboxPr->Bind();
+            lightboxPr->SetUniform<glm::mat4>("projection", projection);
+            lightboxPr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, lightPos);
+            model = glm::scale(model, glm::vec3(0.5f));
+            lightboxPr->SetUniform<glm::mat4>("model", model);
+            renderer.Draw(cubeVa, *lightboxPr);
+        }
         
-        cubePr->Bind();
-        cubePr->SetUniform<glm::mat4>("projection", projection);
-        cubePr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::quat rotation = glm::quat(glm::radians(glm::vec3(r, r * 0.5, 0.0f)));
-        // model = glm::mat4_cast(rotation) * model;
-        cubePr->SetUniform<glm::mat4>("model", model);
-        renderer.Draw(cubeVa, *cubePr);
+        /* Draw lit cube */
+        {
+            litPr->Bind();
+
+            litPr->SetUniform<int>("texture0", 0);
+            litPr->SetUniform<glm::vec3>("lightPos", lightPos);
+
+            litPr->SetUniform<glm::mat4>("projection", projection);
+            litPr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
+            litPr->SetUniform<glm::mat4>("model", model);
+            renderer.Draw(cubeVa, *litPr);
+        }
+
 
         window.OnUpdate();
     }

@@ -121,6 +121,12 @@ void Shader::SetUniform(const std::string& name, glm::mat4 v)
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(v));
 }
 
+template<>
+void Shader::SetUniform(const std::string& name, glm::vec3 v)
+{
+    glUniform3f(GetUniformLocation(name), v.x, v.y, v.z);
+}
+
 // #include "shader.h"
 // #include "glad/glad.h"
 

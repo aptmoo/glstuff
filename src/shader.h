@@ -43,6 +43,9 @@ template<>
 void Shader::SetUniform(const std::string& name, int v);
 
 template<>
+void Shader::SetUniform(const std::string& name, glm::vec3 v);
+
+template<>
 void Shader::SetUniform(const std::string& name, glm::mat4 v);
 
 #endif
