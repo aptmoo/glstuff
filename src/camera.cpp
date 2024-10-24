@@ -10,8 +10,9 @@ CameraTransform::~CameraTransform()
 
 void CameraTransform::Update()
 {
-    m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position);
-    m_ViewMatrix = glm::mat4_cast(m_Rotation) * m_ViewMatrix;
+    m_ViewMatrix = glm::mat4(1.0f);
+    m_ViewMatrix = glm::translate(m_ViewMatrix, m_Position);
+    m_ViewMatrix = glm::mat4_cast(glm::normalize(m_Rotation)) * m_ViewMatrix;
 }
 
 glm::mat4 CameraTransform::GetViewMatrix()

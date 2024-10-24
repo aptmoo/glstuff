@@ -9,7 +9,16 @@ public:
     CameraTransform(glm::vec3 position = glm::vec3(0.0f), glm::quat rotation = glm::quat(glm::vec3(0.0f)));
     ~CameraTransform();
 
-    void SetRotation(glm::vec3 rotation) { m_Rotation = glm::quat(rotation); }
+    // void SetRotation(glm::vec3 rotation) { m_Rotation = glm::quat(rotation); }
+
+    void SetRotation(glm::vec3 rotation)
+    {
+        glm::quat y = glm::angleAxis(rotation.y, glm::vec3(0, 1, 0));
+        glm::quat x = glm::angleAxis(rotation.x, glm::vec3(1, 0, 0));
+        glm::quat z = glm::angleAxis(rotation.z, glm::vec3(0, 0, 1));
+        m_Rotation = z * x * y;
+        m_Rotation = glm::normalize(m_Rotation);
+    }
 
     void Update();
     glm::mat4 GetViewMatrix();
