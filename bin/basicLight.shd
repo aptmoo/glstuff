@@ -4,7 +4,6 @@
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec3 lightPos;
 
 @shader vertex
 layout (location = 0) in vec3 aPos;
@@ -31,17 +30,33 @@ in vec3 RawNormal;
 in vec3 FragPos;
 in vec2 TexCoord;
 
+uniform vec3 lightPos;
+uniform float ambientStrength;
+uniform vec3 ambientColor;
+uniform vec3 viewPos;
+
 uniform sampler2D texture0;
+uniform sampler2D spec0;
+
+float specularStrength = 0.5f;
 
 void main()
 {
     vec3 modelNormal = mat3(transpose(inverse(model))) * RawNormal;
-    vec3 norm = normalize(RawNormal);
+    vec3 norm = normalize(modelNormal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = vec3(diff);
 
+    vec3 viewDir = normalize(FragPos - viewPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = vec3(specularStrength * spec) * vec3(texture(spec0, TexCoord));
+
+    vec3 shading = (ambientColor * ambientStrength) + diffuse + specular;
+    // vec3 shading = specular;
+    FragColor = texture(texture0, TexCoord) * vec4(shading, 1.0);
+    // FragColor = vec4(specular, 1.0);
     //FragColor = vec4(TexCoord, 0.0, 1.0);
-    FragColor = texture(texture0, TexCoord) * vec4(diffuse, 1.0);
     //FragColor = vec4(FragPos, 1.0);
 }

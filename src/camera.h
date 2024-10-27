@@ -20,6 +20,8 @@ public:
         m_Rotation = glm::normalize(m_Rotation);
     }
 
+    glm::vec3 GetPosition() { return m_Position; }
+
     void Update();
     glm::mat4 GetViewMatrix();
 private:

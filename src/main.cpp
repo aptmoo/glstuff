@@ -98,18 +98,28 @@ int main(int argc, char const *argv[])
     cubeVa.AddBuffer(cubeIb, GPUType::UINT);
 
     stbi_set_flip_vertically_on_load(true);
+
     int width, height, bpp;
-    unsigned char* data = stbi_load("awesomeface_16bit.png", &width, &height, &bpp, 0);
+    unsigned char* data = stbi_load("container2.png", &width, &height, &bpp, 0);
     Texture tex(data, (TextureDesc){GPUType::UCHAR, TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, TextureFormat::RGBA, InternalFormat::RGBA16, width, height});
     tex.Bind(0);
     stbi_image_free(data);
+
+    int width1, height1, bpp1;
+    unsigned char* data1 = stbi_load("container2_specular.png", &width1, &height1, &bpp1, 0);
+    Texture specTex(data1, (TextureDesc){GPUType::UCHAR, TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, TextureFormat::RGBA, InternalFormat::RGBA16, width1, height1});
+    specTex.Bind(1);
+    stbi_image_free(data1);
 
     Ref<Shader> pr = content.Load<Shader>("test");
     pr->SetUniform<int>("texture0", 0);
 
     Ref<Shader> cubePr = content.Load<Shader>("cube");
     Ref<Shader> lightboxPr = content.Load<Shader>("lightbox");
+
     Ref<Shader> litPr = content.Load<Shader>("basicLight");
+    litPr->SetUniform("ambientColor", glm::vec3(0.25f, 0.25f, 0.25f));
+    litPr->SetUniform("ambientStrength", 1.0f);
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -123,9 +133,9 @@ int main(int argc, char const *argv[])
     {
         /* Update stuff */
         r += 0.5f;  
-        lightPos.x = 4 * sin(0.1f * r);
-        lightPos.z = 4 * cos(0.1f * r);
-        lightPos.y = 4 * sin(0.01f * r);
+        lightPos.x = 4 * sin(0.05f * r);
+        lightPos.z = 4 * cos(0.05f * r);
+        lightPos.y = 4 * sin(0.0025f * r);
         camera.SetRotation(glm::radians(glm::vec3(20.0f, -45.0f, 0.0f)));
         camera.Update();
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
@@ -140,12 +150,12 @@ int main(int argc, char const *argv[])
         {
             lightboxPr->Bind();
             lightboxPr->Bind();
-            lightboxPr->SetUniform<glm::mat4>("projection", projection);
-            lightboxPr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
+            lightboxPr->SetUniform("projection", projection);
+            lightboxPr->SetUniform("view", camera.GetViewMatrix());
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, lightPos);
             model = glm::scale(model, glm::vec3(0.5f));
-            lightboxPr->SetUniform<glm::mat4>("model", model);
+            lightboxPr->SetUniform("model", model);
             renderer.Draw(cubeVa, *lightboxPr);
         }
         
@@ -153,11 +163,13 @@ int main(int argc, char const *argv[])
         {
             litPr->Bind();
 
-            litPr->SetUniform<int>("texture0", 0);
-            litPr->SetUniform<glm::vec3>("lightPos", lightPos);
+            litPr->SetUniform("texture0", 0);
+            litPr->SetUniform("spec0", 1);
+            litPr->SetUniform("lightPos", lightPos);
+            litPr->SetUniform("viewPos", camera.GetPosition());
 
-            litPr->SetUniform<glm::mat4>("projection", projection);
-            litPr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
+            litPr->SetUniform("projection", projection);
+            litPr->SetUniform("view", camera.GetViewMatrix());
             glm::mat4 model = glm::mat4(1.0f);
             // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
             litPr->SetUniform<glm::mat4>("model", model);
