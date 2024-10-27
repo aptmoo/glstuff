@@ -35,6 +35,7 @@ uniform sampler2D texture0;
 
 void main()
 {
+    vec3 modelNormal = mat3(transpose(inverse(model))) * RawNormal;
     vec3 norm = normalize(RawNormal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);

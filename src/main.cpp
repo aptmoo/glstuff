@@ -116,14 +116,17 @@ int main(int argc, char const *argv[])
 
     float r;
 
-    CameraTransform camera(glm::vec3(-6.0f, -6.0f, -6.0f));
-    glm::vec3 lightPos = glm::vec3(2, 2, -2);
+    CameraTransform camera(glm::vec3(-6, -3, -6));
+    glm::vec3 lightPos = glm::vec3(-2, 0, -2);
 
     while(!window.ShouldClose())
     {
         /* Update stuff */
         r += 0.5f;  
-        camera.SetRotation(glm::radians(glm::vec3(33.3f, -45.0f, 0.0f)));
+        lightPos.x = 4 * sin(0.1f * r);
+        lightPos.z = 4 * cos(0.1f * r);
+        lightPos.y = 4 * sin(0.01f * r);
+        camera.SetRotation(glm::radians(glm::vec3(20.0f, -45.0f, 0.0f)));
         camera.Update();
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
 
@@ -156,7 +159,7 @@ int main(int argc, char const *argv[])
             litPr->SetUniform<glm::mat4>("projection", projection);
             litPr->SetUniform<glm::mat4>("view", camera.GetViewMatrix());
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
+            // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
             litPr->SetUniform<glm::mat4>("model", model);
             renderer.Draw(cubeVa, *litPr);
         }

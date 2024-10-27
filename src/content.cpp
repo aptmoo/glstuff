@@ -2,8 +2,6 @@
 #include <fstream>
 #include <sstream>
 
-
-#include <iostream>
 template<>
 Ref<Shader> ContentManager::Load(const std::string& name)
 {
