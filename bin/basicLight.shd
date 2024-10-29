@@ -30,13 +30,35 @@ in vec3 RawNormal;
 in vec3 FragPos;
 in vec2 TexCoord;
 
-uniform vec3 lightPos;
-uniform float ambientStrength;
-uniform vec3 ambientColor;
-uniform vec3 viewPos;
+uniform vec3 u_ViewPos;
 
-uniform sampler2D texture0;
-uniform sampler2D spec0;
+uniform sampler2D s_Texture0;
+uniform sampler2D s_Spec0;
+
+struct EnvLight
+{
+    vec3 ambient;
+    float ambientStrength;
+};
+
+uniform EnvLight u_EnvLight;
+
+#define LIGHT_POINT 0
+#define LIGHT_DIRECTIONAL 1
+
+struct Light
+{
+    vec3 position;
+    vec3 color;
+    vec3 direction;
+    float brightness;
+    int type;
+};
+
+#define NUM_LIGHTS 2
+uniform Light u_Lights[NUM_LIGHTS];
+
+vec3 CalculateLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 float specularStrength = 0.5f;
 
@@ -44,19 +66,47 @@ void main()
 {
     vec3 modelNormal = mat3(transpose(inverse(model))) * RawNormal;
     vec3 norm = normalize(modelNormal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = vec3(diff);
+    vec3 viewDir = normalize(FragPos - u_ViewPos);
 
-    vec3 viewDir = normalize(FragPos - viewPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = vec3(specularStrength * spec) * vec3(texture(spec0, TexCoord));
+    vec3 shading = (u_EnvLight.ambient * u_EnvLight.ambientStrength);
 
-    vec3 shading = (ambientColor * ambientStrength) + diffuse + specular;
-    // vec3 shading = specular;
-    FragColor = texture(texture0, TexCoord) * vec4(shading, 1.0);
+    for(int i = 0; i < NUM_LIGHTS; i++)
+    {
+        shading += CalculateLight(u_Lights[i], norm, FragPos, viewDir);
+    }
+
+    FragColor = texture(s_Texture0, TexCoord) * vec4(shading, 1.0);
     // FragColor = vec4(specular, 1.0);
     //FragColor = vec4(TexCoord, 0.0, 1.0);
     //FragColor = vec4(FragPos, 1.0);
+}
+
+
+vec3 CalculateLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+    vec3 lightDir = vec3(0.0);
+    float atten = 1.0;
+    if(light.type == LIGHT_POINT)
+    {
+        lightDir = normalize(light.position - fragPos);
+        float dist = length(light.position - fragPos);
+        atten = (1.0 / (dist * dist)) * light.brightness;
+    }
+    else if(light.type == LIGHT_DIRECTIONAL)
+    {
+        lightDir = normalize(-light.direction);
+        atten = light.brightness;
+    }
+
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.color;
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = vec3(specularStrength * spec) * vec3(texture(s_Spec0, TexCoord));
+
+    diffuse *= atten;
+    specular *= atten;
+
+    return diffuse + specular;
 }

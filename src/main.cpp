@@ -118,8 +118,17 @@ int main(int argc, char const *argv[])
     Ref<Shader> lightboxPr = content.Load<Shader>("lightbox");
 
     Ref<Shader> litPr = content.Load<Shader>("basicLight");
-    litPr->SetUniform("ambientColor", glm::vec3(0.25f, 0.25f, 0.25f));
-    litPr->SetUniform("ambientStrength", 1.0f);
+    litPr->SetUniform("u_EnvLight.ambient", glm::vec3(0.25f, 0.25f, 0.25f));
+    litPr->SetUniform("u_EnvLight.ambientStrength", 1.0f);
+
+    litPr->SetUniform("u_Lights[0].color", glm::vec3(1.0f, 0.9f, 0.9f));
+    litPr->SetUniform("u_Lights[0].direction", glm::vec3(1.0f, -1.0f, -1.0f));
+    litPr->SetUniform("u_Lights[0].brightness", 2.5f);
+    litPr->SetUniform("u_Lights[0].type", 1);
+
+    litPr->SetUniform("u_Lights[1].color", glm::vec3(0.1f, 1.0f, 0.9f));
+    litPr->SetUniform("u_Lights[1].brightness", 10.0f);
+    litPr->SetUniform("u_Lights[1].type", 0);
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -163,10 +172,12 @@ int main(int argc, char const *argv[])
         {
             litPr->Bind();
 
-            litPr->SetUniform("texture0", 0);
-            litPr->SetUniform("spec0", 1);
-            litPr->SetUniform("lightPos", lightPos);
-            litPr->SetUniform("viewPos", camera.GetPosition());
+            litPr->SetUniform("s_Texture0", 0);
+            litPr->SetUniform("s_Spec0", 1);
+            litPr->SetUniform("u_ViewPos", camera.GetPosition());
+        
+            litPr->SetUniform("u_Lights[1].position", lightPos);
+
 
             litPr->SetUniform("projection", projection);
             litPr->SetUniform("view", camera.GetViewMatrix());
