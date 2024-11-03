@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/ext/glad/include",
                 "",
-                "${workspaceFolder}/ext/stb"
+                "${workspaceFolder}/ext/stb",
+                "${workspaceFolder}/ext/tinyobjloader"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

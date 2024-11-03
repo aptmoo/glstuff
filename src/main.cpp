@@ -12,6 +12,7 @@
 #include "stb_image.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "tiny_obj_loader.h"
 
 int main(int argc, char const *argv[])
 {
@@ -22,30 +23,30 @@ int main(int argc, char const *argv[])
     ContentManager content;
     Renderer renderer;
 
-    float vertices[] = 
-    {
-        // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-    };  
+    // float vertices[] = 
+    // {
+    //     // positions          // colors           // texture coords
+    //     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+    //     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+    //     -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+    //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+    // };  
 
-    unsigned int indices[] = 
-    {
-        0, 1, 3,   /* T0 */
-        1, 2, 3    /* T1 */
-    }; 
+    // unsigned int indices[] = 
+    // {
+    //     0, 1, 3,   /* T0 */
+    //     1, 2, 3    /* T1 */
+    // }; 
 
-    GPUDataLayout vbLayout;
-    vbLayout.AddElement("Positions", GPUType::FLOAT3);
-    vbLayout.AddElement("Colors", GPUType::FLOAT3);
-    vbLayout.AddElement("TexCoord0", GPUType::FLOAT2);
-    Ref<StaticGPUBuffer> vb = StaticGPUBuffer::Create(&vertices, sizeof(float) * 8 * 4);
-    Ref<StaticGPUBuffer> ib = StaticGPUBuffer::Create(&indices, sizeof(float) * 2 * 3);
-    VertexArray va;
-    va.AddBuffer(ib, GPUType::UINT);
-    va.AddBuffer(vb, vbLayout);
+    // GPUDataLayout vbLayout;
+    // vbLayout.AddElement("Positions", GPUType::FLOAT3);
+    // vbLayout.AddElement("Colors", GPUType::FLOAT3);
+    // vbLayout.AddElement("TexCoord0", GPUType::FLOAT2);
+    // Ref<StaticGPUBuffer> vb = StaticGPUBuffer::Create(&vertices, sizeof(float) * 8 * 4);
+    // Ref<StaticGPUBuffer> ib = StaticGPUBuffer::Create(&indices, sizeof(float) * 2 * 3);
+    // VertexArray va;
+    // va.AddBuffer(ib, GPUType::UINT);
+    // va.AddBuffer(vb, vbLayout);
 
     std::vector<float> cubeVertices =
     {
@@ -97,16 +98,76 @@ int main(int argc, char const *argv[])
     cubeVa.AddBuffer(cubeVb, cubeLayout);
     cubeVa.AddBuffer(cubeIb, GPUType::UINT);
 
+    struct MeshVertex
+    {
+        glm::vec3 pos;
+        glm::vec3 normal;
+        glm::vec4 color;
+        glm::vec2 texcoord;
+    };
+    std::vector<MeshVertex> meshVertices;
+    
+    /* Model import */
+    {
+        // Uses cube layout
+        tinyobj::attrib_t attrib;
+        std::vector<tinyobj::shape_t> shapes;
+        std::vector<tinyobj::material_t> materials;
+        std::string warn, err;
+        if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, "models/miyako_notex_noline.obj"))
+        {
+            std::cout << warn + err << '\n';
+            std::cout << "\nProbably going to crash...\n";
+        }
+
+        // vertices.reserve(attrib.vertices.size());
+        for(int i = 0; i < shapes.size(); i++)
+        {
+            tinyobj::shape_t& shape = shapes[i];
+            tinyobj::mesh_t& mesh = shape.mesh;
+            for(int j = 0; j < mesh.indices.size(); j++)
+            {
+                MeshVertex vtx;
+                tinyobj::index_t idx = mesh.indices.at(j);
+                vtx.pos = 
+                {
+                    attrib.vertices.at(idx.vertex_index * 3),
+                    attrib.vertices.at(idx.vertex_index * 3 + 1),
+                    attrib.vertices.at(idx.vertex_index * 3 + 2),
+                };
+                vtx.normal = 
+                {
+                    attrib.normals.at(idx.normal_index * 3),
+                    attrib.normals.at(idx.normal_index * 3 + 1),
+                    attrib.normals.at(idx.normal_index * 3 + 2),
+                };
+                vtx.color = glm::vec4(1.0f);
+                vtx.texcoord = 
+                {
+                    attrib.texcoords.at(idx.texcoord_index * 2),
+                    attrib.texcoords.at(idx.texcoord_index * 2 + 1),
+                };
+                meshVertices.push_back(vtx);
+            }
+        }
+    }
+
+    Ref<StaticGPUBuffer> meshVb = StaticGPUBuffer::Create(meshVertices.data(), meshVertices.size() * sizeof(MeshVertex));
+    VertexArray meshVa;
+    meshVa.AddBuffer(meshVb, cubeLayout);
+    
+    /* Import textures */
+
     stbi_set_flip_vertically_on_load(true);
 
     int width, height, bpp;
-    unsigned char* data = stbi_load("container2.png", &width, &height, &bpp, 0);
+    unsigned char* data = stbi_load("white_2x2.png", &width, &height, &bpp, 0);
     Texture tex(data, (TextureDesc){GPUType::UCHAR, TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, TextureFormat::RGBA, InternalFormat::RGBA16, width, height});
     tex.Bind(0);
     stbi_image_free(data);
 
     int width1, height1, bpp1;
-    unsigned char* data1 = stbi_load("container2_specular.png", &width1, &height1, &bpp1, 0);
+    unsigned char* data1 = stbi_load("white_2x2.png", &width1, &height1, &bpp1, 0);
     Texture specTex(data1, (TextureDesc){GPUType::UCHAR, TextureFilter::LINEAR, MipFilter::LINEAR, WrapMode::REPEAT, TextureFormat::RGBA, InternalFormat::RGBA16, width1, height1});
     specTex.Bind(1);
     stbi_image_free(data1);
@@ -138,6 +199,9 @@ int main(int argc, char const *argv[])
     CameraTransform camera(glm::vec3(-6, -3, -6));
     glm::vec3 lightPos = glm::vec3(-2, 0, -2);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     while(!window.ShouldClose())
     {
         /* Update stuff */
@@ -165,7 +229,7 @@ int main(int argc, char const *argv[])
             model = glm::translate(model, lightPos);
             model = glm::scale(model, glm::vec3(0.5f));
             lightboxPr->SetUniform("model", model);
-            renderer.Draw(cubeVa, *lightboxPr);
+            renderer.DrawIndexed(cubeVa, *lightboxPr);
         }
         
         /* Draw lit cube */
@@ -182,11 +246,14 @@ int main(int argc, char const *argv[])
             litPr->SetUniform("projection", projection);
             litPr->SetUniform("view", camera.GetViewMatrix());
             glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0, -4, 0));
+            model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            model = glm::scale(model, glm::vec3(4));
             // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
             litPr->SetUniform<glm::mat4>("model", model);
-            renderer.Draw(cubeVa, *litPr);
+            // renderer.DrawIndexed(cubeVa, *litPr);
+            renderer.DrawArray(meshVa, *litPr);
         }
-
 
         window.OnUpdate();
     }

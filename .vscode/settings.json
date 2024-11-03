@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.qh": "quakec",
+        "*.shd": "glsl",
         "stdexcept": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
@@ -66,7 +67,23 @@
         "ios": "cpp",
         "locale": "cpp",
         "queue": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "complex": "cpp",
+        "unordered_set": "cpp",
+        "system_error": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "mutex": "cpp",
+        "stdfloat": "cpp",
+        "typeindex": "cpp",
+        "__locale": "cpp",
+        "*.ipp": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "ranges": "cpp",
+        "valarray": "cpp",
+        "deque": "cpp",
+        "stack": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

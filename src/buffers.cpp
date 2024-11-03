@@ -75,6 +75,25 @@ unsigned int VertexArray::GetElementCount() const
     return 0;
 }
 
+unsigned int VertexArray::GetVertexCount()
+{
+    unsigned size = 0;
+    for(auto& vb : m_Buffers)
+    {
+        size += vb.second->GetSize() / vb.first.GetStride();
+    }
+    return size;
+}
+
+unsigned int VertexArray::GetVertexCount() const
+{
+    unsigned size = 0;
+    for(auto& vb : m_Buffers)
+    {
+        size += vb.second->GetSize() / vb.first.GetStride();
+    }
+    return size;
+}
 
 void VertexArray::Bind()
 {

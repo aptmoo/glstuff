@@ -42,11 +42,32 @@ void Renderer::Clear(float r, float g, float b)
     glClear(flags);
 }
 
-void Renderer::Draw(const VertexArray& array, const Shader& shader)
+void Renderer::DrawIndexed(const VertexArray& array, const Shader& shader)
 {
     shader.Bind();
     array.Bind();
     glDrawElements(GL_TRIANGLES, array.GetElementCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Renderer::DrawIndexed(const Ref<VertexArray>& array, const Ref<Shader>& shader)
+{
+    shader->Bind();
+    array->Bind();
+    glDrawElements(GL_TRIANGLES, array->GetElementCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Renderer::DrawArray(const VertexArray& array, const Shader& shader)
+{
+    shader.Bind();
+    array.Bind();
+    glDrawArrays(GL_TRIANGLES, 0, array.GetVertexCount());
+}
+
+void Renderer::DrawArray(const Ref<VertexArray>& array, const Ref<Shader>& shader)
+{
+    shader->Bind();
+    array->Bind();
+    glDrawArrays(GL_TRIANGLES, 0, array->GetVertexCount());
 }
 
 void Renderer::SetDepthEnabled(bool enabled)

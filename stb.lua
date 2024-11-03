@@ -1,7 +1,7 @@
 project "stb"
     kind "StaticLib"
     language "C"
-    targetname "GLFW"
+    targetname "stb"
     targetdir "lib/"
     objdir "bin-int/"
 

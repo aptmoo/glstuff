@@ -42,6 +42,10 @@ public:
     unsigned int GetElementCount();
     unsigned int GetElementCount() const;
 
+    unsigned int GetVertexCount();
+    unsigned int GetVertexCount() const;
+
+    bool HasIndexBuffer() { return m_IndexBuffer.get() != nullptr; }
 
     void Bind();
     void Bind() const;

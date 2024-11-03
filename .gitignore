@@ -5,7 +5,9 @@
 *.slo
 *.lo
 *.o
-*.obj
+
+# oh well im not developing for windows anyway
+# *.obj 
 
 # Precompiled Headers
 *.gch
@@ -34,3 +36,6 @@
 # Generated makefiles
 *.make
 Makefile
+
+# Intermediates
+bin-int/*

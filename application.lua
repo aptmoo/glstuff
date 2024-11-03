@@ -16,7 +16,8 @@ project "Application"
     {
         "src/",
 
-        "ext/glad/include/",
+        "ext/glad/include",
+        "ext/tinyobjloader",
         "ext/glfw/include",
         "ext/stb/",
         "ext/glm/",
@@ -29,7 +30,7 @@ project "Application"
 
     links
     {
-        "GLFW", "GL", "glad"
+        "GLFW", "GL", "glad", "stb", "tinyobjloader"
     }
 
     defines
