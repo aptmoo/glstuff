@@ -24,6 +24,7 @@ void main()
 }
 
 @shader fragment
+@include "lights.glsl"
 out vec4 FragColor;
 
 in vec3 RawNormal;
@@ -35,30 +36,10 @@ uniform vec3 u_ViewPos;
 uniform sampler2D s_Texture0;
 uniform sampler2D s_Spec0;
 
-struct EnvLight
-{
-    vec3 ambient;
-    float ambientStrength;
-};
-
 uniform EnvLight u_EnvLight;
 
-#define LIGHT_POINT 0
-#define LIGHT_DIRECTIONAL 1
-
-struct Light
-{
-    vec3 position;
-    vec3 color;
-    vec3 direction;
-    float brightness;
-    int type;
-};
-
-#define NUM_LIGHTS 2
+#define NUM_LIGHTS 4
 uniform Light u_Lights[NUM_LIGHTS];
-
-vec3 CalculateLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 float specularStrength = 0.5f;
 
@@ -72,41 +53,11 @@ void main()
 
     for(int i = 0; i < NUM_LIGHTS; i++)
     {
-        shading += CalculateLight(u_Lights[i], norm, FragPos, viewDir);
+        shading += CalculateLight(u_Lights[i], norm, FragPos, viewDir, specularStrength * texture(s_Spec0, TexCoord).x);
     }
 
     FragColor = texture(s_Texture0, TexCoord) * vec4(shading, 1.0);
     // FragColor = vec4(specular, 1.0);
     //FragColor = vec4(TexCoord, 0.0, 1.0);
     //FragColor = vec4(FragPos, 1.0);
-}
-
-
-vec3 CalculateLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
-{
-    vec3 lightDir = vec3(0.0);
-    float atten = 1.0;
-    if(light.type == LIGHT_POINT)
-    {
-        lightDir = normalize(light.position - fragPos);
-        float dist = length(light.position - fragPos);
-        atten = (1.0 / (dist * dist)) * light.brightness;
-    }
-    else if(light.type == LIGHT_DIRECTIONAL)
-    {
-        lightDir = normalize(-light.direction);
-        atten = light.brightness;
-    }
-
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * light.color;
-
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = vec3(specularStrength * spec) * vec3(texture(s_Spec0, TexCoord));
-
-    diffuse *= atten;
-    specular *= atten;
-
-    return diffuse + specular;
 }

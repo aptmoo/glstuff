@@ -1,6 +1,9 @@
 #include "content.h"
 #include <fstream>
 #include <sstream>
+#include <iostream>
+
+std::string ReadFileToString(const std::string& path);
 
 template<>
 Ref<Shader> ContentManager::Load(const std::string& name)
@@ -32,6 +35,23 @@ Ref<Shader> ContentManager::Load(const std::string& name)
             if(line.find("fragment") != std::string::npos)
                 type = StageType::FRAGMENT;
         }
+        else if(line.find("@include") != std::string::npos)
+        {
+            // Sucks?
+            bool reading = false;
+            std::stringstream nameStream;
+            for(char& c : line)
+            {                
+                if(c == '"')
+                    reading = !reading;
+                else if(reading)
+                    nameStream << c;
+                // std::cout << c;
+            }
+            // std::cout << nameStream.str() << '\n';
+            if(type != StageType::_NONE)
+                streams[(int)type] << ReadFileToString(nameStream.str());
+        }
         else
         {
             if(type != StageType::_NONE)
@@ -44,4 +64,17 @@ Ref<Shader> ContentManager::Load(const std::string& name)
 
     m_Shaders.emplace(name, MakeRef<Shader>(vs_source, fs_source));
     return m_Shaders.at(name);
+}
+
+std::string ReadFileToString(const std::string& path)
+{
+    std::ifstream file(path, std::ios::in | std::ios::binary);
+    if(file)
+    {
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
+    }
+
+    return std::string();
 }

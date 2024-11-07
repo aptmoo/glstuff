@@ -22,31 +22,32 @@ int main(int argc, char const *argv[])
 
     ContentManager content;
     Renderer renderer;
+    renderer.SetStencilEnabled(true);
 
-    // float vertices[] = 
-    // {
-    //     // positions          // colors           // texture coords
-    //     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-    //     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    //     -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-    // };  
+    float vertices[] = 
+    {
+        // positions          // colors           // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+    };  
 
-    // unsigned int indices[] = 
-    // {
-    //     0, 1, 3,   /* T0 */
-    //     1, 2, 3    /* T1 */
-    // }; 
+    unsigned int indices[] = 
+    {
+        0, 1, 3,   /* T0 */
+        1, 2, 3    /* T1 */
+    }; 
 
-    // GPUDataLayout vbLayout;
-    // vbLayout.AddElement("Positions", GPUType::FLOAT3);
-    // vbLayout.AddElement("Colors", GPUType::FLOAT3);
-    // vbLayout.AddElement("TexCoord0", GPUType::FLOAT2);
-    // Ref<StaticGPUBuffer> vb = StaticGPUBuffer::Create(&vertices, sizeof(float) * 8 * 4);
-    // Ref<StaticGPUBuffer> ib = StaticGPUBuffer::Create(&indices, sizeof(float) * 2 * 3);
-    // VertexArray va;
-    // va.AddBuffer(ib, GPUType::UINT);
-    // va.AddBuffer(vb, vbLayout);
+    GPUDataLayout vbLayout;
+    vbLayout.AddElement("Positions", GPUType::FLOAT3);
+    vbLayout.AddElement("Colors", GPUType::FLOAT3);
+    vbLayout.AddElement("TexCoord0", GPUType::FLOAT2);
+    Ref<StaticGPUBuffer> vb = StaticGPUBuffer::Create(&vertices, sizeof(float) * 8 * 4);
+    Ref<StaticGPUBuffer> ib = StaticGPUBuffer::Create(&indices, sizeof(float) * 2 * 3);
+    VertexArray va;
+    va.AddBuffer(ib, GPUType::UINT);
+    va.AddBuffer(vb, vbLayout);
 
     std::vector<float> cubeVertices =
     {
@@ -199,8 +200,6 @@ int main(int argc, char const *argv[])
     CameraTransform camera(glm::vec3(-6, -3, -6));
     glm::vec3 lightPos = glm::vec3(-2, 0, -2);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
 
     while(!window.ShouldClose())
     {
@@ -219,6 +218,8 @@ int main(int argc, char const *argv[])
             context.SetViewportSize(window.GetSize());        
         renderer.Clear(0.1f, 0.1f, 0.1f);
 
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
         /* Draw lightbox */
         {
             lightboxPr->Bind();
@@ -254,6 +255,10 @@ int main(int argc, char const *argv[])
             // renderer.DrawIndexed(cubeVa, *litPr);
             renderer.DrawArray(meshVa, *litPr);
         }
+
+
+        glDisable(GL_CULL_FACE);
+        renderer.DrawIndexed(va, *pr);
 
         window.OnUpdate();
     }
