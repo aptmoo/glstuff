@@ -1,6 +1,5 @@
 #ifndef RENDERER_H
 #define RENDERER_H
-#include <queue>
 #include "buffers.h"
 #include "shader.h"
 
@@ -18,7 +17,6 @@ public:
 
     void DrawArray(const VertexArray& array, const Shader& shader);
     void DrawArray(const Ref<VertexArray>& array, const Ref<Shader>& shader);
-
 
     void SetDepthEnabled(bool enabled);
     void SetStencilEnabled(bool enabled);

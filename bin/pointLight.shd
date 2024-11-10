@@ -1,0 +1,61 @@
+@shader shared
+#version 330 core
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+@shader vertex
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec4 _unused0;
+layout (location = 3) in vec2 aTexCoord;
+
+out vec3 RawNormal;
+out vec3 FragPos;
+out vec2 TexCoord;
+
+void main()
+{
+    FragPos = vec3(model * vec4(aPos, 1.0));
+    RawNormal = aNormal;
+    TexCoord = vec2(aTexCoord.x, 1.0 - aTexCoord.y);
+    gl_Position = projection * view * model * vec4(aPos, 1.0f);
+}
+
+@shader fragment
+@include "lights.glsl"
+out vec4 FragColor;
+
+in vec3 RawNormal;
+in vec3 FragPos;
+in vec2 TexCoord;
+
+uniform vec3 u_ViewPos;
+
+uniform sampler2D s_Texture0;
+uniform sampler2D s_Spec0;
+
+uniform EnvLight u_EnvLight;
+uniform Light u_Light;
+
+float specularStrength = 0.5f;
+
+void main()
+{
+    vec3 modelNormal = mat3(transpose(inverse(model))) * RawNormal;
+    vec3 norm = normalize(modelNormal);
+    vec3 viewDir = normalize(FragPos - u_ViewPos);
+
+    vec3 shading = vec3(0.0); //(u_EnvLight.ambient * u_EnvLight.ambientStrength);
+
+    for(int i = 0; i < NUM_LIGHTS; i++)
+    {
+        shading += CalculateLight(u_Lights[i], norm, FragPos, viewDir, specularStrength * texture(s_Spec0, TexCoord).x);
+    }
+
+    FragColor = vec4(texture(s_Texture0, TexCoord).xyz, 1.0) * vec4(shading, 1.0);
+    // FragColor = vec4(shading, 1.0);
+    //FragColor = vec4(TexCoord, 0.0, 1.0);
+    //FragColor = vec4(FragPos, 1.0);
+}

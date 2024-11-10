@@ -22,7 +22,6 @@ int main(int argc, char const *argv[])
 
     ContentManager content;
     Renderer renderer;
-    renderer.SetStencilEnabled(true);
 
     float vertices[] = 
     {
@@ -178,19 +177,45 @@ int main(int argc, char const *argv[])
 
     Ref<Shader> cubePr = content.Load<Shader>("cube");
     Ref<Shader> lightboxPr = content.Load<Shader>("lightbox");
+    Ref<Shader> blackPr = content.Load<Shader>("black");
 
-    Ref<Shader> litPr = content.Load<Shader>("basicLight");
-    litPr->SetUniform("u_EnvLight.ambient", glm::vec3(0.25f, 0.25f, 0.25f));
-    litPr->SetUniform("u_EnvLight.ambientStrength", 1.0f);
+    Ref<Shader> ambientPr = content.Load<Shader>("ambient");
+    ambientPr->SetUniform("u_EnvLight.ambient", glm::vec3(0.25f, 0.25f, 0.25f));
+    ambientPr->SetUniform("u_EnvLight.ambientStrength", 0.5f);
 
-    litPr->SetUniform("u_Lights[0].color", glm::vec3(1.0f, 0.9f, 0.9f));
-    litPr->SetUniform("u_Lights[0].direction", glm::vec3(1.0f, -1.0f, -1.0f));
-    litPr->SetUniform("u_Lights[0].brightness", 2.5f);
-    litPr->SetUniform("u_Lights[0].type", 1);
+    Ref<Shader> pointLightPr = content.Load<Shader>("pointLight");
 
-    litPr->SetUniform("u_Lights[1].color", glm::vec3(0.1f, 1.0f, 0.9f));
-    litPr->SetUniform("u_Lights[1].brightness", 10.0f);
-    litPr->SetUniform("u_Lights[1].type", 0);
+    pointLightPr->SetUniform("u_Light.color", glm::vec3(0.1f, 1.0f, 0.9f));
+    pointLightPr->SetUniform("u_Light.brightness", 1.0f);
+    pointLightPr->SetUniform("u_Light.type", 0);
+
+    struct SceneData
+    {
+        glm::mat4 view, projection;
+        glm::vec3 ambientColor;
+        float ambientStrength;
+    } sceneData;
+
+    struct MaterialData
+    {
+        unsigned int albedo;
+        unsigned int specular;
+        unsigned int texure0;
+    } materialData;
+    
+    unsigned int sceneDataBlock = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
+    glUniformBlockBinding(ambientPr->GetID(), sceneDataBlock, 0);
+
+    unsigned int materialDataBlock = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
+    glUniformBlockBinding(ambientPr->GetID(), materialDataBlock, 0);
+
+    unsigned int sceneDataUbo;
+    glCreateBuffers(1, &sceneDataUbo);
+    glNamedBufferData(sceneDataUbo, sizeof(SceneData), nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, sceneDataUbo, 0, sizeof(SceneData));
+    glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
+
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -198,16 +223,19 @@ int main(int argc, char const *argv[])
     float r;
 
     CameraTransform camera(glm::vec3(-6, -3, -6));
-    glm::vec3 lightPos = glm::vec3(-2, 0, -2);
+    glm::vec3 lightPos = glm::vec3(0, 0, 2);
 
+    int frame = 0;
 
     while(!window.ShouldClose())
     {
+        frame++;
+        // std::cout << frame << '\n';
         /* Update stuff */
         r += 0.5f;  
-        lightPos.x = 4 * sin(0.05f * r);
-        lightPos.z = 4 * cos(0.05f * r);
-        lightPos.y = 4 * sin(0.0025f * r);
+        lightPos.x = 2 * sin(0.05f * r);
+        lightPos.z = 2 * cos(0.05f * r);
+        // lightPos.y = 4 * sin(0.0025f * r);
         camera.SetRotation(glm::radians(glm::vec3(20.0f, -45.0f, 0.0f)));
         camera.Update();
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
@@ -215,11 +243,37 @@ int main(int argc, char const *argv[])
 
         /* draw stuff*/
         if(window.GetSizeChanged())
+        {
+            std::cout << "New window size: " << window.GetWidth() << "x" << window.GetHeight()<<'\n';
             context.SetViewportSize(window.GetSize());        
-        renderer.Clear(0.1f, 0.1f, 0.1f);
+        }
+        renderer.Clear(0.0f, 0.0f, 0.0f);
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+
+        glDepthFunc(GL_LEQUAL);
+
+        glDepthMask(GL_TRUE);
+        glColorMask(false, false, false, false);
+        {
+            blackPr->Bind();
+            blackPr->SetUniform("projection", projection);
+            blackPr->SetUniform("view", camera.GetViewMatrix());
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0, -4, 0));
+            model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            model = glm::scale(model, glm::vec3(4));
+            // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
+            blackPr->SetUniform<glm::mat4>("model", model);
+            renderer.DrawArray(meshVa, *blackPr);
+        }
+        glColorMask(true, true, true, true);
+        glDepthMask(GL_FALSE);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+
         /* Draw lightbox */
         {
             lightboxPr->Bind();
@@ -227,38 +281,73 @@ int main(int argc, char const *argv[])
             lightboxPr->SetUniform("projection", projection);
             lightboxPr->SetUniform("view", camera.GetViewMatrix());
             glm::mat4 model = glm::mat4(1.0f);
+            // model = glm::translate(model, glm::vec3(0, 0, 2));
             model = glm::translate(model, lightPos);
-            model = glm::scale(model, glm::vec3(0.5f));
+            model = glm::scale(model, glm::vec3(0.25f));
+            lightboxPr->SetUniform("model", model);
+            renderer.DrawIndexed(cubeVa, *lightboxPr);
+
+            model = glm::translate(glm::mat4(1.0), glm::vec3(lightPos.z, lightPos.y, lightPos.x));
+            model = glm::scale(model, glm::vec3(0.25f));
             lightboxPr->SetUniform("model", model);
             renderer.DrawIndexed(cubeVa, *lightboxPr);
         }
         
-        /* Draw lit cube */
         {
-            litPr->Bind();
+            sceneData.projection = projection;
+            sceneData.view = camera.GetViewMatrix();
+            sceneData.ambientColor = glm::vec3(0.15);
+            sceneData.ambientStrength = 0.1f;
+            glBindBuffer(GL_UNIFORM_BUFFER, sceneDataUbo);
+            glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
 
-            litPr->SetUniform("s_Texture0", 0);
-            litPr->SetUniform("s_Spec0", 1);
-            litPr->SetUniform("u_ViewPos", camera.GetPosition());
-        
-            litPr->SetUniform("u_Lights[1].position", lightPos);
-
-
-            litPr->SetUniform("projection", projection);
-            litPr->SetUniform("view", camera.GetViewMatrix());
+            ambientPr->Bind();  
+            // ambientPr->SetUniform("projection", projection);
+            // ambientPr->SetUniform("view", camera.GetViewMatrix());
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
             model = glm::scale(model, glm::vec3(4));
             // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
-            litPr->SetUniform<glm::mat4>("model", model);
-            // renderer.DrawIndexed(cubeVa, *litPr);
-            renderer.DrawArray(meshVa, *litPr);
+            ambientPr->SetUniform<glm::mat4>("model", model);
+            renderer.DrawArray(meshVa, *ambientPr);
+        }
+
+        /* Draw lit cube */
+        {
+            pointLightPr->Bind();
+
+            pointLightPr->SetUniform("s_Texture0", 0);
+            pointLightPr->SetUniform("s_Spec0", 1);
+            pointLightPr->SetUniform("u_ViewPos", camera.GetPosition());
+
+
+            pointLightPr->SetUniform("projection", projection);
+            pointLightPr->SetUniform("view", camera.GetViewMatrix());
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0, -4, 0));
+            model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            model = glm::scale(model, glm::vec3(4));
+            // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
+            pointLightPr->SetUniform<glm::mat4>("model", model);
+
+            pointLightPr->SetUniform("u_Light.color", glm::vec3(0.1f, 1.0f, 0.9f));
+            pointLightPr->SetUniform("u_Light.position", lightPos);
+            renderer.DrawArray(meshVa, *pointLightPr);
+            // renderer.DrawIndexed(cubeVa, *pointLightPr);
+
+
+            pointLightPr->SetUniform("u_Light.color", glm::vec3(1.0f, 0.1f, 0.9f));
+            pointLightPr->SetUniform("u_Light.position", glm::vec3(lightPos.z, lightPos.y, lightPos.x));
+            renderer.DrawArray(meshVa, *pointLightPr);
+            // renderer.DrawIndexed(cubeVa, *pointLightPr);
         }
 
 
         glDisable(GL_CULL_FACE);
-        renderer.DrawIndexed(va, *pr);
+        glDisable(GL_BLEND);
+        glDepthMask(GL_TRUE);
+        // renderer.DrawIndexed(va, *ambientPr);
 
         window.OnUpdate();
     }
