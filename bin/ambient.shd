@@ -28,19 +28,13 @@ in vec3 RawNormal;
 in vec3 FragPos;
 in vec2 TexCoord;
 
-uniform sampler2D s_Texture0;
-uniform sampler2D s_Spec0;
-
 uniform EnvLight u_EnvLight;
-
-#define NUM_LIGHTS 4
-uniform Light u_Lights[NUM_LIGHTS];
 
 float specularStrength = 0.5f;
 
 void main()
 {
-    vec3 shading = (u_EnvLight.ambient * u_EnvLight.ambientStrength);
+    vec3 shading = (ambient * ambientStrength);
 
     FragColor = vec4(texture(s_Texture0, TexCoord).xyz, 1.0) * vec4(shading, 1.0);
     // FragColor = vec4(shading, 1.0);

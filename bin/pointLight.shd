@@ -47,12 +47,8 @@ void main()
     vec3 norm = normalize(modelNormal);
     vec3 viewDir = normalize(FragPos - u_ViewPos);
 
-    vec3 shading = vec3(0.0); //(u_EnvLight.ambient * u_EnvLight.ambientStrength);
-
-    for(int i = 0; i < NUM_LIGHTS; i++)
-    {
-        shading += CalculateLight(u_Lights[i], norm, FragPos, viewDir, specularStrength * texture(s_Spec0, TexCoord).x);
-    }
+    vec3 shading;
+    shading = CalculateLight(u_Light, norm, FragPos, viewDir, specularStrength * texture(s_Spec0, TexCoord).x);
 
     FragColor = vec4(texture(s_Texture0, TexCoord).xyz, 1.0) * vec4(shading, 1.0);
     // FragColor = vec4(shading, 1.0);

@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include "glm/glm.hpp"
+#include "uniformBuffer.h"
 
 struct UniformData
 {
@@ -24,11 +25,21 @@ public:
     template<typename T>
     void SetUniform(const std::string& name, T v){static_assert(0);};
     
+    /**
+     * @brief Attach and bind uniform buffer.
+     * 
+     * @param buf 
+     */
+    // void AttachBuffer(const UniformBuffer& buf);
+
     unsigned int GetID(){ return m_glID; }
 private:
     unsigned int m_glID;
     std::unordered_map<std::string, UniformData> m_Uniforms;
 
+    /* Cache to store known uniform block indices */
+    std::unordered_map<std::string, unsigned int> m_UniformBlockIndices;
+    
     unsigned int CompileStage(unsigned int type, const std::string& source);
     unsigned int LinkProgram(unsigned int vs, unsigned int fs);
 

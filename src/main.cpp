@@ -191,7 +191,7 @@ int main(int argc, char const *argv[])
 
     struct SceneData
     {
-        glm::mat4 view, projection;
+        glm::mat4 view, projection, model;
         glm::vec3 ambientColor;
         float ambientStrength;
     } sceneData;
@@ -205,9 +205,6 @@ int main(int argc, char const *argv[])
     
     unsigned int sceneDataBlock = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
     glUniformBlockBinding(ambientPr->GetID(), sceneDataBlock, 0);
-
-    unsigned int materialDataBlock = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
-    glUniformBlockBinding(ambientPr->GetID(), materialDataBlock, 0);
 
     unsigned int sceneDataUbo;
     glCreateBuffers(1, &sceneDataUbo);
@@ -238,6 +235,7 @@ int main(int argc, char const *argv[])
         // lightPos.y = 4 * sin(0.0025f * r);
         camera.SetRotation(glm::radians(glm::vec3(20.0f, -45.0f, 0.0f)));
         camera.Update();
+        view = camera.GetViewMatrix();
         projection = glm::perspective(glm::radians(45.0f), (float)window.GetWidth() / (float)window.GetHeight(), 0.1f, 100.0f);
 
 
@@ -259,7 +257,7 @@ int main(int argc, char const *argv[])
         {
             blackPr->Bind();
             blackPr->SetUniform("projection", projection);
-            blackPr->SetUniform("view", camera.GetViewMatrix());
+            blackPr->SetUniform("view", view);
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
@@ -277,9 +275,8 @@ int main(int argc, char const *argv[])
         /* Draw lightbox */
         {
             lightboxPr->Bind();
-            lightboxPr->Bind();
             lightboxPr->SetUniform("projection", projection);
-            lightboxPr->SetUniform("view", camera.GetViewMatrix());
+            lightboxPr->SetUniform("view", view);
             glm::mat4 model = glm::mat4(1.0f);
             // model = glm::translate(model, glm::vec3(0, 0, 2));
             model = glm::translate(model, lightPos);
@@ -294,23 +291,24 @@ int main(int argc, char const *argv[])
         }
         
         {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0, -4, 0));
+            model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
+            model = glm::scale(model, glm::vec3(4));
             sceneData.projection = projection;
-            sceneData.view = camera.GetViewMatrix();
-            sceneData.ambientColor = glm::vec3(0.15);
-            sceneData.ambientStrength = 0.1f;
+            sceneData.view = view;
+            sceneData.model = model;
+            sceneData.ambientColor = glm::vec3(0.1, 0.1, 0.2);
+            sceneData.ambientStrength = 0.5f;
             glBindBuffer(GL_UNIFORM_BUFFER, sceneDataUbo);
             glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
 
             ambientPr->Bind();  
             // ambientPr->SetUniform("projection", projection);
-            // ambientPr->SetUniform("view", camera.GetViewMatrix());
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0, -4, 0));
-            model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
-            model = glm::scale(model, glm::vec3(4));
-            // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
-            ambientPr->SetUniform<glm::mat4>("model", model);
+            // ambientPr->SetUniform("view", view);
+            // ambientPr->SetUniform<glm::mat4>("model", model);
             renderer.DrawArray(meshVa, *ambientPr);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
 
         /* Draw lit cube */
@@ -323,7 +321,7 @@ int main(int argc, char const *argv[])
 
 
             pointLightPr->SetUniform("projection", projection);
-            pointLightPr->SetUniform("view", camera.GetViewMatrix());
+            pointLightPr->SetUniform("view", view);
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
@@ -331,14 +329,22 @@ int main(int argc, char const *argv[])
             // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
             pointLightPr->SetUniform<glm::mat4>("model", model);
 
+            pointLightPr->SetUniform("u_Light.brightness", 1.0f);
+            pointLightPr->SetUniform("u_Light.type", 0);
+            
             pointLightPr->SetUniform("u_Light.color", glm::vec3(0.1f, 1.0f, 0.9f));
             pointLightPr->SetUniform("u_Light.position", lightPos);
             renderer.DrawArray(meshVa, *pointLightPr);
             // renderer.DrawIndexed(cubeVa, *pointLightPr);
 
-
             pointLightPr->SetUniform("u_Light.color", glm::vec3(1.0f, 0.1f, 0.9f));
             pointLightPr->SetUniform("u_Light.position", glm::vec3(lightPos.z, lightPos.y, lightPos.x));
+            renderer.DrawArray(meshVa, *pointLightPr);
+
+            pointLightPr->SetUniform("u_Light.type", 1);
+            pointLightPr->SetUniform("u_Light.color", glm::vec3(1.0f, 0.7f, 0.6f));
+            pointLightPr->SetUniform("u_Light.position", glm::vec3(1, 1, 1));
+            pointLightPr->SetUniform("u_Light.direction", glm::vec3(1.0, -1.0, -1.0));
             renderer.DrawArray(meshVa, *pointLightPr);
             // renderer.DrawIndexed(cubeVa, *pointLightPr);
         }

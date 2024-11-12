@@ -68,9 +68,9 @@ unsigned int Shader::LinkProgram(unsigned int vs, unsigned int fs)
 
 void Shader::CacheUniforms()
 {
+    /* TODO: Also precache blocks? */
     int uniformCount = 0;
     glGetProgramiv(m_glID, GL_ACTIVE_UNIFORMS, &uniformCount);
-
     if(uniformCount != 0)
     {
         int maxNameLength = 0;
@@ -91,6 +91,11 @@ void Shader::CacheUniforms()
             m_Uniforms.emplace(std::make_pair(std::string(uniformName.get(), length), data));
         }
     }
+}
+
+void AttachBuffer(const UniformBuffer &buf)
+{
+    
 }
 
 int Shader::GetUniformLocation(const std::string& name)
