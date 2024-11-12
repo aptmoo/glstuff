@@ -58,7 +58,6 @@ private:
     unsigned int m_BufferCount; /* Only counts vertex buffers.*/
     Ref<StaticGPUBuffer> m_IndexBuffer;
 
-
     GPUType m_ElementBufferType;
     unsigned int m_glID;
 };

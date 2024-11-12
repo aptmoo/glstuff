@@ -4,6 +4,7 @@
 #include "context.h"
 #include "texture.h"
 #include "renderer.h"
+#include "uniformBuffer.h"
 
 #include "content.h"
 #include "camera.h"
@@ -189,29 +190,31 @@ int main(int argc, char const *argv[])
     pointLightPr->SetUniform("u_Light.brightness", 1.0f);
     pointLightPr->SetUniform("u_Light.type", 0);
 
-    struct SceneData
-    {
-        glm::mat4 view, projection, model;
-        glm::vec3 ambientColor;
-        float ambientStrength;
-    } sceneData;
+    GPUDataLayout sceneDataLayout;
+    sceneDataLayout.AddElement("view", GPUType::MAT4);
+    sceneDataLayout.AddElement("projection", GPUType::MAT4);
+    sceneDataLayout.AddElement("model", GPUType::MAT4);
+    sceneDataLayout.AddElement("ambientColor", GPUType::FLOAT3);
+    sceneDataLayout.AddElement("ambientStrength", GPUType::FLOAT);
 
-    struct MaterialData
-    {
-        unsigned int albedo;
-        unsigned int specular;
-        unsigned int texure0;
-    } materialData;
-    
-    unsigned int sceneDataBlock = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
-    glUniformBlockBinding(ambientPr->GetID(), sceneDataBlock, 0);
+    // struct SceneData
+    // {
+    //     glm::mat4 view, projection, model;
+    //     glm::vec3 ambientColor;
+    //     float ambientStrength;
+    // } sceneData;
 
-    unsigned int sceneDataUbo;
-    glCreateBuffers(1, &sceneDataUbo);
-    glNamedBufferData(sceneDataUbo, sizeof(SceneData), nullptr, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferRange(GL_UNIFORM_BUFFER, 0, sceneDataUbo, 0, sizeof(SceneData));
-    glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
+    UniformBuffer sceneData("ub_SceneData", sceneDataLayout);
+
+    // unsigned int sceneDataBlock = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
+    // glUniformBlockBinding(ambientPr->GetID(), sceneDataBlock, 0);
+
+    // unsigned int sceneDataUbo;
+    // glCreateBuffers(1, &sceneDataUbo);
+    // glNamedBufferData(sceneDataUbo, sizeof(SceneData), nullptr, GL_DYNAMIC_DRAW);
+    // glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
+    // // glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    // glBindBufferRange(GL_UNIFORM_BUFFER, 0, sceneDataUbo, 0, sizeof(SceneData));
 
 
     glm::mat4 view = glm::mat4(1.0f);
@@ -295,15 +298,20 @@ int main(int argc, char const *argv[])
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
             model = glm::scale(model, glm::vec3(4));
-            sceneData.projection = projection;
-            sceneData.view = view;
-            sceneData.model = model;
-            sceneData.ambientColor = glm::vec3(0.1, 0.1, 0.2);
-            sceneData.ambientStrength = 0.5f;
-            glBindBuffer(GL_UNIFORM_BUFFER, sceneDataUbo);
-            glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
+            sceneData.SetProperty("projection", projection);
+            sceneData.SetProperty("view", view);
+            sceneData.SetProperty("model", model);
+            sceneData.SetProperty("ambientColor", glm::vec3(0.1, 0.1, 0.2));
+            sceneData.SetProperty("ambientStrength", 0.5f);
+
+            // sceneData.view = view;
+            // sceneData.model = model;
+            // sceneData.ambientColor = glm::vec3(0.1, 0.1, 0.2);
+            // sceneData.ambientStrength = 0.5f;
+            // glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
 
             ambientPr->Bind();  
+            ambientPr->AttachBuffer(sceneData, 0);
             // ambientPr->SetUniform("projection", projection);
             // ambientPr->SetUniform("view", view);
             // ambientPr->SetUniform<glm::mat4>("model", model);

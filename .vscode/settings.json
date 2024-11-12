@@ -83,7 +83,9 @@
         "ranges": "cpp",
         "valarray": "cpp",
         "deque": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "numbers": "cpp",
+        "text_encoding": "cpp"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

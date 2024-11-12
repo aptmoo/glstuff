@@ -3,13 +3,14 @@
 #include <string>
 #include <unordered_map>
 #include "glm/glm.hpp"
-#include "uniformBuffer.h"
 
 struct UniformData
 {
     int location, count;
     unsigned int type;
 };
+
+class UniformBuffer;
 
 class Shader
 {
@@ -30,7 +31,7 @@ public:
      * 
      * @param buf 
      */
-    // void AttachBuffer(const UniformBuffer& buf);
+    void AttachBuffer(const UniformBuffer& buf, unsigned int binding);
 
     unsigned int GetID(){ return m_glID; }
 private:

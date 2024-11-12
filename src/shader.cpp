@@ -3,6 +3,7 @@
 #include <iostream>
 #include "glad/glad.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "uniformBuffer.h"
 
 
 Shader::Shader(const std::string& vs_source, const std::string& fs_source)
@@ -93,9 +94,21 @@ void Shader::CacheUniforms()
     }
 }
 
-void AttachBuffer(const UniformBuffer &buf)
+void Shader::AttachBuffer(const UniformBuffer &buf, unsigned int binding)
 {
-    
+    const std::string& name = buf.GetName();
+    unsigned int index = 0;
+
+    if(m_UniformBlockIndices.find(name) != m_UniformBlockIndices.end())
+    {
+        index = m_UniformBlockIndices.at(name);
+    }
+    else
+    {
+        glGetUniformBlockIndex(m_glID, name.c_str());
+    }
+    glUniformBlockBinding(m_glID, index, binding);
+    glBindBufferRange(GL_UNIFORM_BUFFER, binding, buf.GetID(), 0, buf.GetSize());
 }
 
 int Shader::GetUniformLocation(const std::string& name)
