@@ -14,19 +14,6 @@ void GPUDataLayout::AddElement(const std::string& name, const GPUType& type, boo
 
 static GPUDataElement s_EmptyElement = {"error", GPUType::_DEFAULT, 0, false};
 
-const GPUDataElement& GPUDataLayout::GetElement(const std::string& name)
-{
-    for(const GPUDataElement& e : m_Elements)
-    {
-        if(e.Name == name)
-        {
-            return e;
-        }
-    }
-
-    return s_EmptyElement;
-}
-
 const GPUDataElement& GPUDataLayout::GetElement(const std::string& name) const
 {
     for(const GPUDataElement& e : m_Elements)

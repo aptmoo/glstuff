@@ -57,15 +57,6 @@ void VertexArray::AddBuffer(const Ref<StaticGPUBuffer>& buffer, GPUType elementT
     m_IndexBuffer = buffer;
 }
 
-unsigned int VertexArray::GetElementCount()
-{
-    if(m_IndexBuffer.get() != nullptr)
-    {
-        return m_IndexBuffer->GetSize() / GPUTypeSize(m_ElementBufferType);
-    }
-    return 0;
-}
-
 unsigned int VertexArray::GetElementCount() const
 {
     if(m_IndexBuffer.get() != nullptr)
@@ -73,16 +64,6 @@ unsigned int VertexArray::GetElementCount() const
         return m_IndexBuffer->GetSize() / GPUTypeSize(m_ElementBufferType);
     }
     return 0;
-}
-
-unsigned int VertexArray::GetVertexCount()
-{
-    unsigned size = 0;
-    for(auto& vb : m_Buffers)
-    {
-        size += vb.second->GetSize() / vb.first.GetStride();
-    }
-    return size;
 }
 
 unsigned int VertexArray::GetVertexCount() const

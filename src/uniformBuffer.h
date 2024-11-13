@@ -19,13 +19,8 @@ public:
     void Bind() const;
     void Unbind() const;
 
-    unsigned int GetID() { return m_glID; }
     unsigned int GetID() const { return m_glID; }
-
-    unsigned int GetSize() { return m_Layout.GetStride(); }
     unsigned int GetSize() const { return m_Layout.GetStride(); }
-
-    const std::string& GetName() { return m_Name; }
     const std::string& GetName() const { return m_Name; }
 private:
     std::string m_Name;

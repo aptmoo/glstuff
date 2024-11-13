@@ -11,9 +11,7 @@ public:
     StaticGPUBuffer(void* data, unsigned int size);
     ~StaticGPUBuffer();
 
-    unsigned int GetID() { return m_glID; }
     unsigned int GetID() const { return m_glID; }
-    unsigned int GetSize() { return m_BufferSize; }
     unsigned int GetSize() const { return m_BufferSize; }
 
     static Ref<StaticGPUBuffer> Create(void* data, unsigned int size);
@@ -39,10 +37,7 @@ public:
      */
     void AddBuffer(const Ref<StaticGPUBuffer>& buffer, GPUType elementType);
 
-    unsigned int GetElementCount();
     unsigned int GetElementCount() const;
-
-    unsigned int GetVertexCount();
     unsigned int GetVertexCount() const;
 
     bool HasIndexBuffer() { return m_IndexBuffer.get() != nullptr; }
