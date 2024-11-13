@@ -67,7 +67,7 @@ public:
     Texture(unsigned char* data, const TextureDesc& desc);
     ~Texture();
 
-    void Bind(unsigned int slot);
+    void Bind(unsigned int slot) const;
 
     int GetWidth()          { return m_desc.width;     }
     int GetHeight()         { return m_desc.height;    }

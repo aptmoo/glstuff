@@ -95,19 +95,9 @@ unsigned int VertexArray::GetVertexCount() const
     return size;
 }
 
-void VertexArray::Bind()
-{
-    glBindVertexArray(m_glID);
-}
-
 void VertexArray::Bind() const
 {
     glBindVertexArray(m_glID);
-}
-
-void VertexArray::Unbind()
-{
-    glBindVertexArray(0);
 }
 
 void VertexArray::Unbind() const

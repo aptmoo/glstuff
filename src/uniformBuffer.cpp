@@ -8,8 +8,6 @@ UniformBuffer::UniformBuffer(const std::string &name, const GPUDataLayout &layou
     : m_Name(name), m_Layout(layout)
 {
     unsigned int size = m_Layout.GetStride();
-    // m_Data = malloc(size);
-    // memset(m_Data, 0, size);
     
     glCreateBuffers(1, &m_glID);
     glNamedBufferData(m_glID, size, nullptr, GL_DYNAMIC_DRAW);
@@ -21,22 +19,13 @@ UniformBuffer::UniformBuffer(const std::string &name, const GPUDataLayout &layou
 
 UniformBuffer::~UniformBuffer()
 {
-    // free(m_Data);
+    glDeleteBuffers(1, &m_glID);
 }
 
-void UniformBuffer::Bind()
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, m_glID);
-}
 
 void UniformBuffer::Bind() const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, m_glID);
-}
-
-void UniformBuffer::Unbind()
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void UniformBuffer::Unbind() const
@@ -48,10 +37,10 @@ template<>
 void UniformBuffer::SetProperty(const std::string& property, float v)
 {
     const GPUDataElement& element = m_Layout.GetElement(property);
-    float cv = v;
     if(element.Type != GPUType::FLOAT)
         return;
-    
+
+    float cv = v;
     glNamedBufferSubData(m_glID, element.Offset, sizeof(float), &cv);}
 
 template<>

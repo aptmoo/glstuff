@@ -1,6 +1,7 @@
 #ifndef UNIFORMBUFFER_H
 #define UNIFORMBUFFER_H
 #include <string>
+#include <variant>
 #include "layout.h"
 #include "shader.h"
 #include "types.h"
@@ -15,9 +16,7 @@ public:
     template<typename T>
     void SetProperty(const std::string& property, T v) { static_assert(0); }
 
-    void Bind();
     void Bind() const;
-    void Unbind();
     void Unbind() const;
 
     unsigned int GetID() { return m_glID; }
@@ -32,7 +31,6 @@ private:
     std::string m_Name;
 
     GPUDataLayout m_Layout;
-    // void* m_Data;
 
     unsigned int m_glID;
 };

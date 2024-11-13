@@ -18,16 +18,21 @@ public:
     Shader(const std::string& vs_source, const std::string& fs_source);
     ~Shader();
 
-    void Bind();
     void Bind() const;
-    void Unbind();
     void Unbind() const;
 
+    /**
+     * @brief Set uniform <name> with type <T> to v.
+     * 
+     * @tparam T 
+     * @param name 
+     * @param v 
+     */
     template<typename T>
     void SetUniform(const std::string& name, T v){static_assert(0);};
     
     /**
-     * @brief Attach and bind uniform buffer.
+     * @brief Attach uniform buffer.
      * 
      * @param buf 
      */

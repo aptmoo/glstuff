@@ -100,7 +100,7 @@ Texture::~Texture()
     glDeleteTextures(1, &m_glID);
 }
 
-void Texture::Bind(unsigned int slot)
+void Texture::Bind(unsigned int slot) const
 {
     glBindTextureUnit(slot, m_glID);
 }

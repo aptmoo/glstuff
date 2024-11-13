@@ -47,9 +47,7 @@ public:
 
     bool HasIndexBuffer() { return m_IndexBuffer.get() != nullptr; }
 
-    void Bind();
     void Bind() const;
-    void Unbind();
     void Unbind() const;
 
 private:

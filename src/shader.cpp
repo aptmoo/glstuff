@@ -24,20 +24,9 @@ Shader::~Shader()
     glDeleteProgram(m_glID);
 }
 
-void Shader::Bind()
-{
-    glUseProgram(m_glID);
-}
-
 void Shader::Bind() const
 {
     glUseProgram(m_glID);
-}
-
-
-void Shader::Unbind()
-{
-    glUseProgram(0);
 }
 
 void Shader::Unbind() const
