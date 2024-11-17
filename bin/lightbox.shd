@@ -1,9 +1,6 @@
 @shader shared
 #version 330 core
-
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+@include "materialShared.glsl"
 
 @shader vertex
 layout (location = 0) in vec3 aPos;

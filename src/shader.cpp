@@ -94,10 +94,11 @@ void Shader::AttachBuffer(const UniformBuffer &buf, unsigned int binding)
     }
     else
     {
-        glGetUniformBlockIndex(m_glID, name.c_str());
+        index = glGetUniformBlockIndex(m_glID, name.c_str());
+        m_UniformBlockIndices.emplace(name, index);
     }
     glUniformBlockBinding(m_glID, index, binding);
-    glBindBufferRange(GL_UNIFORM_BUFFER, binding, buf.GetID(), 0, buf.GetSize());
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding, buf.GetID());
 }
 
 int Shader::GetUniformLocation(const std::string& name)

@@ -194,7 +194,7 @@ int main(int argc, char const *argv[])
     sceneDataLayout.AddElement("view", GPUType::MAT4);
     sceneDataLayout.AddElement("projection", GPUType::MAT4);
     sceneDataLayout.AddElement("model", GPUType::MAT4);
-    sceneDataLayout.AddElement("ambientColor", GPUType::FLOAT3);
+    sceneDataLayout.AddElement("ambient", GPUType::FLOAT3);
     sceneDataLayout.AddElement("ambientStrength", GPUType::FLOAT);
 
     // struct SceneData
@@ -206,24 +206,27 @@ int main(int argc, char const *argv[])
 
     UniformBuffer sceneData("ub_SceneData", sceneDataLayout);
 
-    // unsigned int sceneDataBlock = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
-    // glUniformBlockBinding(ambientPr->GetID(), sceneDataBlock, 0);
+    // unsigned int sceneDataAmbient = glGetUniformBlockIndex(ambientPr->GetID(), "ub_SceneData");
+    // unsigned int sceneDataBox = glGetUniformBlockIndex(lightboxPr->GetID(), "ub_SceneData");
+    // glUniformBlockBinding(ambientPr->GetID(), sceneDataAmbient, 0);
+    // glUniformBlockBinding(lightboxPr->GetID(), sceneDataBox, 0);
 
     // unsigned int sceneDataUbo;
     // glCreateBuffers(1, &sceneDataUbo);
     // glNamedBufferData(sceneDataUbo, sizeof(SceneData), nullptr, GL_DYNAMIC_DRAW);
     // glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
-    // // glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    // glBindBufferRange(GL_UNIFORM_BUFFER, 0, sceneDataUbo, 0, sizeof(SceneData));
-
+    // glBindBufferBase(GL_UNIFORM_BUFFER, 0, sceneDataUbo);
+    // glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
+    glm::mat4 model = glm::mat4(1.0f);
 
-    float r;
+    float r = 0;
+    std::cout << "r = " << r << '\n';
 
     CameraTransform camera(glm::vec3(-6, -3, -6));
-    glm::vec3 lightPos = glm::vec3(0, 0, 2);
+    glm::vec3 lightPos = glm::vec3(0, 0, 0);
 
     int frame = 0;
 
@@ -250,6 +253,19 @@ int main(int argc, char const *argv[])
         }
         renderer.Clear(0.0f, 0.0f, 0.0f);
 
+        sceneData.SetProperty("projection", projection);
+        sceneData.SetProperty("view", view);
+        sceneData.SetProperty("model", glm::mat4(1.0f));
+        sceneData.SetProperty("ambient", glm::vec3(0.1, 0.1, 0.2));
+        sceneData.SetProperty("ambientStrength", 0.5f);
+
+        // sceneData.view = view;
+        // sceneData.projection = projection;
+        // sceneData.model = model;
+        // sceneData.ambientColor = glm::vec3(0.1, 0.1, 0.2);
+        // sceneData.ambientStrength = 0.5f;
+        // glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
+
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
 
@@ -261,7 +277,7 @@ int main(int argc, char const *argv[])
             blackPr->Bind();
             blackPr->SetUniform("projection", projection);
             blackPr->SetUniform("view", view);
-            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
             model = glm::scale(model, glm::vec3(4));
@@ -277,46 +293,41 @@ int main(int argc, char const *argv[])
 
         /* Draw lightbox */
         {
-            lightboxPr->Bind();
-            lightboxPr->SetUniform("projection", projection);
-            lightboxPr->SetUniform("view", view);
-            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::mat4(1.0f);
             // model = glm::translate(model, glm::vec3(0, 0, 2));
             model = glm::translate(model, lightPos);
             model = glm::scale(model, glm::vec3(0.25f));
-            lightboxPr->SetUniform("model", model);
+
+            lightboxPr->AttachBuffer(sceneData, 0);
+            sceneData.SetProperty("model", model);
+    
+            lightboxPr->Bind();
             renderer.DrawIndexed(cubeVa, *lightboxPr);
 
             model = glm::translate(glm::mat4(1.0), glm::vec3(lightPos.z, lightPos.y, lightPos.x));
             model = glm::scale(model, glm::vec3(0.25f));
-            lightboxPr->SetUniform("model", model);
+
+            sceneData.SetProperty("model", model);
+            lightboxPr->Bind();
             renderer.DrawIndexed(cubeVa, *lightboxPr);
         }
         
         {
-            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
             model = glm::scale(model, glm::vec3(4));
-            sceneData.SetProperty("projection", projection);
-            sceneData.SetProperty("view", view);
-            sceneData.SetProperty("model", model);
-            sceneData.SetProperty("ambientColor", glm::vec3(0.1, 0.1, 0.2));
-            sceneData.SetProperty("ambientStrength", 0.5f);
-
-            // sceneData.view = view;
             // sceneData.model = model;
-            // sceneData.ambientColor = glm::vec3(0.1, 0.1, 0.2);
-            // sceneData.ambientStrength = 0.5f;
             // glNamedBufferSubData(sceneDataUbo, 0, sizeof(SceneData), &sceneData);
 
-            ambientPr->Bind();  
             ambientPr->AttachBuffer(sceneData, 0);
+            sceneData.SetProperty("model", model);
+
+            ambientPr->Bind();  
             // ambientPr->SetUniform("projection", projection);
             // ambientPr->SetUniform("view", view);
             // ambientPr->SetUniform<glm::mat4>("model", model);
             renderer.DrawArray(meshVa, *ambientPr);
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
 
         /* Draw lit cube */
@@ -327,10 +338,9 @@ int main(int argc, char const *argv[])
             pointLightPr->SetUniform("s_Spec0", 1);
             pointLightPr->SetUniform("u_ViewPos", camera.GetPosition());
 
-
             pointLightPr->SetUniform("projection", projection);
             pointLightPr->SetUniform("view", view);
-            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
             model = glm::scale(model, glm::vec3(4));
