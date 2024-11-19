@@ -6,29 +6,53 @@
 #include <iostream>
 
 UniformBuffer::UniformBuffer(const std::string &name, const GPUDataLayout &layout)
-    : m_Name(name), m_Layout(layout)
+    : m_Name(name)
 {
-    unsigned int size = m_Layout.GetStride();
+    unsigned int size = 0;
     
-    for(const GPUDataElement& e : m_Layout)
+    for(const GPUDataElement& e : layout)
     {
-        std::cout << e.Name << ':' << e.Offset << '\n';
+        size += e.Offset;
+        UniformBufferMember m{e.Type, e.Offset};
+        m_Layout.emplace(e.Name, m);
     }
-    
-    glCreateBuffers(1, &m_glID);
-    glNamedBufferData(m_glID, size, nullptr, GL_DYNAMIC_DRAW);
-    // glNamedBufferSubData(m_glID, 0, size, m_Data);
+
+    m_Stride = size;
+    Init();
 }
 
 UniformBuffer::~UniformBuffer()
 {
+    Destroy();
+}
+
+void UniformBuffer::Init()
+{
+    glCreateBuffers(1, &m_glID);
+    glNamedBufferData(m_glID, m_Stride, nullptr, GL_DYNAMIC_DRAW);
+}
+
+void UniformBuffer::Destroy()
+{
     glDeleteBuffers(1, &m_glID);
+}
+
+const UniformBufferMember& UniformBuffer::GetMember(const std::string& name)
+{
+    if(m_Layout.find(name) != m_Layout.end())
+    {
+        return m_Layout.at(name);
+    }
+
+    static UniformBufferMember s_DefaultMember{GPUType::_DEFAULT, 0};
+    // Whatever setproperty handles this
+    return s_DefaultMember;
 }
 
 template<>
 void UniformBuffer::SetProperty(const std::string& property, float v)
 {
-    const GPUDataElement& element = m_Layout.GetElement(property);
+    const UniformBufferMember& element = GetMember(property);
     if(element.Type != GPUType::FLOAT)
         return;
 
@@ -39,7 +63,7 @@ void UniformBuffer::SetProperty(const std::string& property, float v)
 template<>
 void UniformBuffer::SetProperty(const std::string& property, glm::vec3 v)
 {
-    const GPUDataElement& element = m_Layout.GetElement(property);
+    const UniformBufferMember& element = GetMember(property);
     if(element.Type != GPUType::FLOAT3)
         return;
     
@@ -49,7 +73,7 @@ void UniformBuffer::SetProperty(const std::string& property, glm::vec3 v)
 template<>
 void UniformBuffer::SetProperty(const std::string& property, glm::mat4 v)
 {
-    const GPUDataElement& element = m_Layout.GetElement(property);
+    const UniformBufferMember& element = GetMember(property);
     if(element.Type != GPUType::MAT4)
         return;
     

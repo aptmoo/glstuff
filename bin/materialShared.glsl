@@ -6,7 +6,3 @@ layout (std140) uniform ub_SceneData
     vec3 ambient;
     float ambientStrength;
 };
-
-uniform sampler2D s_Albedo;
-uniform sampler2D s_Spec0;
-uniform sampler2D s_Texture0;

@@ -11,6 +11,7 @@
 
 #include "glad/glad.h"
 #include "stb_image.h"
+#include "GLFW/glfw3.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "tiny_obj_loader.h"
@@ -223,16 +224,26 @@ int main(int argc, char const *argv[])
     glm::mat4 model = glm::mat4(1.0f);
 
     float r = 0;
-    std::cout << "r = " << r << '\n';
 
     CameraTransform camera(glm::vec3(-6, -3, -6));
     glm::vec3 lightPos = glm::vec3(0, 0, 0);
 
     int frame = 0;
+    double delta = 0, previousTime = 0, totalFrameTime = 0;
+    double highestDelta = 0; double lowestDelta = 0;
 
     while(!window.ShouldClose())
     {
-        frame++;
+        totalFrameTime += delta;
+        double currentTime = glfwGetTime();
+        delta = currentTime - previousTime;
+        previousTime = currentTime;
+
+        if(delta > highestDelta)
+            highestDelta = delta;
+        if(delta < lowestDelta || lowestDelta == 0)
+            lowestDelta = delta;
+
         // std::cout << frame << '\n';
         /* Update stuff */
         r += 0.5f;  
@@ -332,20 +343,19 @@ int main(int argc, char const *argv[])
 
         /* Draw lit cube */
         {
+            pointLightPr->AttachBuffer(sceneData, 0);
             pointLightPr->Bind();
 
             pointLightPr->SetUniform("s_Texture0", 0);
             pointLightPr->SetUniform("s_Spec0", 1);
             pointLightPr->SetUniform("u_ViewPos", camera.GetPosition());
 
-            pointLightPr->SetUniform("projection", projection);
-            pointLightPr->SetUniform("view", view);
             model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(0, -4, 0));
             model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
             model = glm::scale(model, glm::vec3(4));
             // model = glm::rotate(model, 0.1f * r, glm::vec3(0, 1, 0));
-            pointLightPr->SetUniform<glm::mat4>("model", model);
+            sceneData.SetProperty("model", model);
 
             pointLightPr->SetUniform("u_Light.brightness", 1.0f);
             pointLightPr->SetUniform("u_Light.type", 0);
@@ -374,7 +384,12 @@ int main(int argc, char const *argv[])
         // renderer.DrawIndexed(va, *ambientPr);
 
         window.OnUpdate();
+        frame++;
     }
+
+    std::cout << "Rendered " << frame << " frames in " << totalFrameTime << " seconds\n";
+    std::cout << "Highest: " << highestDelta * 1000 << " ms\n";
+    std::cout << "Lowest: " << lowestDelta * 1000 << " ms\n";;
     
     return 0;
 }

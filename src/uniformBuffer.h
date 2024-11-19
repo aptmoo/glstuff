@@ -1,10 +1,16 @@
 #ifndef UNIFORMBUFFER_H
 #define UNIFORMBUFFER_H
 #include <string>
-#include <variant>
+#include <unordered_map>
 #include "layout.h"
 #include "shader.h"
 #include "types.h"
+
+struct UniformBufferMember
+{
+    GPUType Type;
+    unsigned int Offset;
+};
 
 /* TODO: Deprecate in favor of simpler class? */
 class UniformBuffer
@@ -18,12 +24,18 @@ public:
     void SetProperty(const std::string& property, T v) { static_assert(0); }
 
     unsigned int GetID() const { return m_glID; }
-    unsigned int GetSize() const { return m_Layout.GetStride(); }
+    unsigned int GetSize() const { return m_Stride; }
     const std::string& GetName() const { return m_Name; }
 private:
-    std::string m_Name;
+    void Init();
+    void Destroy();
 
-    GPUDataLayout m_Layout;
+    const UniformBufferMember& GetMember(const std::string& name);
+
+    std::string m_Name;
+    std::unordered_map<std::string, UniformBufferMember> m_Layout;
+
+    unsigned int m_Stride;
 
     unsigned int m_glID;
 };

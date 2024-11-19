@@ -25,6 +25,8 @@ Window::Window(const WindowDesc& desc)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, false);
     m_pWindowHandle = glfwCreateWindow(desc.Width, desc.Height, desc.Title.c_str(), nullptr, nullptr);
+    
+    glfwSwapInterval(0);
 
     m_Desc.Width = desc.Width;
     m_Desc.Height = desc.Height;

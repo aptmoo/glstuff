@@ -22,6 +22,7 @@ void main()
 
 @shader fragment
 @include "lights.glsl"
+@include "materialFragment.glsl"
 out vec4 FragColor;
 
 in vec3 RawNormal;
